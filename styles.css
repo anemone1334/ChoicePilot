@@ -569,22 +569,28 @@ a {
   font-size: 11px;
 }
 
+
+/* ================= TAGS ================= */
+
 .tag-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  align-items: center;
+  gap: 7px;
 }
 
 .tag-list span {
-  padding: 5px 9px;
+  padding: 6px 10px;
 
   background: #f3f4f5;
 
-  border-radius: 7px;
+  border: 1px solid transparent;
+  border-radius: 8px;
 
   color: var(--text-2);
 
   font-size: 11px;
+  line-height: 1.2;
 }
 
 .tag-list .green-tag {
@@ -596,6 +602,9 @@ a {
   background: #f3f4f5;
   color: var(--text-2);
 }
+
+
+/* ================= RAW JSON ================= */
 
 .raw-json {
   margin-top: 14px;
@@ -703,7 +712,8 @@ a {
   margin-left: -6px;
 }
 
-/* 可编辑标签区域 */
+
+/* ================= EDITABLE TAGS ================= */
 
 .editable-tags {
   min-height: 28px;
@@ -719,7 +729,9 @@ a {
 
 .editable-tags:hover {
   background: rgba(16, 185, 129, .025);
-  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, .06);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 185, 129, .06);
 }
 
 .editable-tag {
@@ -740,6 +752,9 @@ a {
     0 0 0 1px rgba(16, 185, 129, .35),
     0 0 0 3px rgba(16, 185, 129, .07);
 }
+
+
+/* ================= TAG REMOVE ================= */
 
 .tag-remove {
   width: 15px;
@@ -778,39 +793,110 @@ a {
   color: #dc2626;
 }
 
-.tag-add {
+
+/* =========================================================
+   + 添加按钮
+   ========================================================= */
+
+/*
+  这里专门修复需求卡里的“+ 添加”。
+  不再使用浏览器默认按钮样式。
+
+  同时兼容：
+  .tag-add
+  .add-tag
+*/
+
+.tag-add,
+.add-tag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  min-width: 24px;
-  height: 24px;
+  height: 32px;
+  min-width: 0;
 
-  padding: 0 7px;
+  padding: 0 11px;
 
-  border: 1px dashed #d7d9dc;
-  border-radius: 7px;
+  border: 1px solid #e3e5e7;
+  border-radius: 8px;
 
-  background: transparent;
+  background: #f6f7f8;
+  color: #6f747b;
 
-  color: var(--text-3);
-
+  font-family: inherit;
   font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+
+  white-space: nowrap;
 
   cursor: pointer;
 
+  box-shadow: none;
+
   transition:
+    background .15s ease,
     border-color .15s ease,
     color .15s ease,
-    background .15s ease;
+    box-shadow .15s ease,
+    transform .15s ease;
 }
 
-.tag-add:hover {
-  border-color: #a7dbc9;
-
-  background: var(--green-light);
-
+.tag-add:hover,
+.add-tag:hover {
+  background: #eef8f4;
+  border-color: #c9e8dc;
   color: var(--green-dark);
+
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, .03);
+}
+
+.tag-add:active,
+.add-tag:active {
+  transform: translateY(1px);
+}
+
+.tag-add:focus,
+.add-tag:focus {
+  outline: none;
+}
+
+.tag-add:focus-visible,
+.add-tag:focus-visible {
+  border-color: rgba(16, 185, 129, .45);
+
+  box-shadow:
+    0 0 0 3px rgba(16, 185, 129, .08);
+}
+
+
+/* ================= TAG ADD INPUT ================= */
+
+.inline-tag-add-input {
+  width: 90px;
+  height: 32px;
+
+  padding: 0 9px;
+
+  border: 1px solid #c9e8dc;
+  border-radius: 8px;
+
+  background: #fff;
+
+  color: var(--text);
+
+  font-size: 11px;
+
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px rgba(16, 185, 129, .07);
+}
+
+.inline-tag-add-input::placeholder {
+  color: #b0b4ba;
 }
 
 
@@ -1500,5 +1586,13 @@ a {
     margin-left: -4px;
     padding-left: 4px;
     padding-right: 4px;
+  }
+
+  /* 手机端添加按钮 */
+
+  .tag-add,
+  .add-tag {
+    height: 30px;
+    padding: 0 10px;
   }
 }
