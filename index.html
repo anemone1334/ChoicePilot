@@ -8,6 +8,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet"
@@ -18,12 +19,16 @@
 
 <body>
 
-<!-- 背景 -->
+<!-- ================= BACKGROUND ================= -->
+
 <div class="ambient ambient-1"></div>
 <div class="ambient ambient-2"></div>
 
+
 <!-- ================= NAV ================= -->
+
 <nav class="nav">
+
   <div class="nav-inner">
 
     <a class="brand" href="#input">
@@ -32,12 +37,31 @@
     </a>
 
     <div class="nav-links">
-      <a href="#input" class="nav-link active">需求</a>
-      <a href="#needCard" class="nav-link">需求卡</a>
-      <a href="#plansSection" class="nav-link">方案</a>
-      <a href="#cartSection" class="nav-link">购物车</a>
-      <a href="#returnsSection" class="nav-link">回访</a>
-      <a href="#eventsSection" class="nav-link">验证台</a>
+
+      <a href="#input" class="nav-link active">
+        需求
+      </a>
+
+      <a href="#needCard" class="nav-link">
+        需求卡
+      </a>
+
+      <a href="#plansSection" class="nav-link">
+        方案
+      </a>
+
+      <a href="#cartSection" class="nav-link">
+        购物车
+      </a>
+
+      <a href="#returnsSection" class="nav-link">
+        回访
+      </a>
+
+      <a href="#eventsSection" class="nav-link">
+        验证台
+      </a>
+
     </div>
 
     <div class="nav-status">
@@ -46,33 +70,54 @@
     </div>
 
   </div>
+
 </nav>
 
 
+<!-- ================= MAIN ================= -->
+
 <main class="main">
 
+
   <!-- ================= HERO ================= -->
+
   <section id="input" class="hero">
 
     <div class="eyebrow">
+
       <span class="eyebrow-dot"></span>
+
       AI SHOPPING DECISION ENGINE
+
     </div>
 
+
     <h1>
+
       把「我想买什么」
+
       <br>
+
       变成一套<span>可执行方案</span>
+
     </h1>
 
+
     <p class="hero-desc">
+
       用一句话描述你的预算、场景和要求。
+
       ChoicePilot 帮你拆解需求、组合商品，并验证整套购买方案。
+
     </p>
+
 
     <div class="command-box">
 
-      <div class="command-icon">✦</div>
+      <div class="command-icon">
+        ✦
+      </div>
+
 
       <textarea
         id="needInput"
@@ -81,50 +126,93 @@
         placeholder="例如：下个月去云南轻旅行7天，预算1500元，需要背包、外套、帽子和便携雨具，要求轻便、防晒防雨，运动鞋我已经有了。"
       ></textarea>
 
+
       <div class="command-bottom">
 
         <div class="quick-actions">
-          <button class="quick-chip">🎒 轻便优先</button>
-          <button class="quick-chip">☀ 防晒防雨</button>
-          <button class="quick-chip">¥1500 预算</button>
-          <button class="quick-chip">📸 上镜好看</button>
+
+          <button class="quick-chip">
+            🎒 轻便优先
+          </button>
+
+          <button class="quick-chip">
+            ☀ 防晒防雨
+          </button>
+
+          <button class="quick-chip">
+            ¥1500 预算
+          </button>
+
+          <button class="quick-chip">
+            📸 上镜好看
+          </button>
+
         </div>
+
 
         <button
           id="btnParse"
           class="btn btn-primary btn-large"
           onclick="parseNeed();generatePlans();"
         >
+
           开始分析
+
           <span>→</span>
+
         </button>
 
       </div>
+
     </div>
 
+
     <div class="hero-note">
-      <span>✓</span> AI 解析
+
+      <span>✓</span>
+      AI 解析
+
       <span>·</span>
-      <span>✓</span> 规则推荐
+
+      <span>✓</span>
+      规则推荐
+
       <span>·</span>
-      <span>✓</span> 预算校验
+
+      <span>✓</span>
+      预算校验
+
     </div>
 
   </section>
 
 
+
   <!-- ================= NEED CARD ================= -->
+
   <section id="needCard" class="section">
 
     <div id="reqPanel" class="panel hidden">
 
+
       <div class="section-top">
 
         <div>
-          <div class="eyebrow small">STEP 01</div>
-          <h2>需求确认</h2>
-          <p>AI 已将自然语言转换为结构化购买条件。</p>
+
+          <div class="eyebrow small">
+            STEP 01
+          </div>
+
+          <h2>
+            需求确认
+          </h2>
+
+          <p>
+            AI 已将自然语言转换为结构化购买条件。
+          </p>
+
         </div>
+
 
         <button
           id="btnConfirm"
@@ -136,177 +224,199 @@
 
       </div>
 
-     <div class="requirement-grid">
-
-  <!-- 预算 -->
-  <div class="info-card large editable-card">
-    <div class="info-card-top">
-      <div class="info-label">预算</div>
-      <button
-        class="edit-btn"
-        data-edit="budget"
-        type="button"
-      >
-        编辑
-      </button>
-    </div>
-
-    <div
-      id="ncBudget"
-      class="big-number"
-    >
-      ¥1,500
-    </div>
-
-    <div class="info-muted">
-      本次购买总预算
-    </div>
-  </div>
 
 
-  <!-- 目的地 -->
-  <div class="info-card editable-card">
-
-    <div class="info-card-top">
-      <div class="info-label">目的地</div>
-
-      <button
-        class="edit-btn"
-        data-edit="destination"
-        type="button"
-      >
-        编辑
-      </button>
-    </div>
-
-    <div
-      id="ncDest"
-      class="info-value"
-    >
-      云南
-    </div>
-
-    <div
-      id="ncDuration"
-      class="info-muted"
-    >
-      7 天轻旅行
-    </div>
-
-  </div>
+      <div class="requirement-grid">
 
 
-  <!-- 场景 -->
-  <div class="info-card editable-card">
+        <!-- ================= 预算 ================= -->
 
-    <div class="info-card-top">
-      <div class="info-label">场景</div>
+        <div class="info-card large editable-card">
 
-      <button
-        class="edit-btn"
-        data-edit="scene"
-        type="button"
-      >
-        编辑
-      </button>
-    </div>
+          <div class="info-card-top">
 
-    <div
-      id="ncScene"
-      class="info-value"
-    >
-      旅行
-    </div>
+            <div class="info-label">
+              预算
+            </div>
 
-    <div class="info-muted">
-      轻便出行
-    </div>
-
-  </div>
+          </div>
 
 
-  <!-- 需要购买 -->
-  <div class="info-card wide editable-card">
+          <div
+            id="ncBudget"
+            class="big-number inline-editable"
+            data-inline-field="budget"
+            contenteditable="true"
+            spellcheck="false"
+            title="点击修改预算"
+          >
+            ¥1,500
+          </div>
 
-    <div class="info-card-top">
-      <div class="info-label">
-        需要购买
+
+          <div class="info-muted">
+            本次购买总预算
+          </div>
+
+        </div>
+
+
+
+        <!-- ================= 目的地 ================= -->
+
+        <div class="info-card editable-card">
+
+          <div class="info-card-top">
+
+            <div class="info-label">
+              目的地
+            </div>
+
+          </div>
+
+
+          <div
+            id="ncDest"
+            class="info-value inline-editable"
+            data-inline-field="destination"
+            contenteditable="true"
+            spellcheck="false"
+            title="点击修改目的地"
+          >
+            云南
+          </div>
+
+
+          <div
+            id="ncDuration"
+            class="info-muted inline-editable"
+            data-inline-field="duration"
+            contenteditable="true"
+            spellcheck="false"
+            title="点击修改出行时长"
+          >
+            7 天轻旅行
+          </div>
+
+        </div>
+
+
+
+        <!-- ================= 场景 ================= -->
+
+        <div class="info-card editable-card">
+
+          <div class="info-card-top">
+
+            <div class="info-label">
+              场景
+            </div>
+
+          </div>
+
+
+          <div
+            id="ncScene"
+            class="info-value inline-editable"
+            data-inline-field="scene"
+            contenteditable="true"
+            spellcheck="false"
+            title="点击修改场景"
+          >
+            旅行
+          </div>
+
+
+          <div class="info-muted">
+            轻便出行
+          </div>
+
+        </div>
+
+
+
+        <!-- ================= 需要购买 ================= -->
+
+        <div class="info-card wide editable-card">
+
+          <div class="info-card-top">
+
+            <div class="info-label">
+              需要购买
+            </div>
+
+          </div>
+
+
+          <div
+            id="ncCats"
+            class="tag-list editable-tags"
+            data-inline-array="categories"
+          ></div>
+
+        </div>
+
+
+
+        <!-- ================= 硬条件 ================= -->
+
+        <div class="info-card wide editable-card">
+
+          <div class="info-card-top">
+
+            <div class="info-label">
+              硬条件
+            </div>
+
+          </div>
+
+
+          <div
+            id="ncHard"
+            class="tag-list editable-tags"
+            data-inline-array="hardRules"
+          ></div>
+
+        </div>
+
+
+
+        <!-- ================= 已有物品 ================= -->
+
+        <div class="info-card wide editable-card">
+
+          <div class="info-card-top">
+
+            <div class="info-label">
+              已有物品
+            </div>
+
+          </div>
+
+
+          <div
+            id="ncHave"
+            class="tag-list editable-tags"
+            data-inline-array="existingItems"
+          ></div>
+
+        </div>
+
+
       </div>
 
-      <button
-        class="edit-btn"
-        data-edit="categories"
-        type="button"
-      >
-        编辑
-      </button>
-    </div>
-
-    <div
-      id="ncCats"
-      class="tag-list editable-tags"
-    ></div>
-
-  </div>
 
 
-  <!-- 硬条件 -->
-  <div class="info-card wide editable-card">
-
-    <div class="info-card-top">
-      <div class="info-label">
-        硬条件
-      </div>
-
-      <button
-        class="edit-btn"
-        data-edit="hardRules"
-        type="button"
-      >
-        编辑
-      </button>
-    </div>
-
-    <div
-      id="ncHard"
-      class="tag-list editable-tags"
-    ></div>
-
-  </div>
-
-
-  <!-- 已有物品 -->
-  <div class="info-card wide editable-card">
-
-    <div class="info-card-top">
-      <div class="info-label">
-        已有物品
-      </div>
-
-      <button
-        class="edit-btn"
-        data-edit="existingItems"
-        type="button"
-      >
-        编辑
-      </button>
-    </div>
-
-    <div
-      id="ncHave"
-      class="tag-list editable-tags"
-    ></div>
-
-  </div>
-
-</div>
+      <!-- ================= RAW JSON ================= -->
 
       <details class="raw-json">
-        <summary>查看结构化需求 JSON</summary>
-      <details class="raw-json">
-  <summary>查看结构化需求 JSON</summary>
 
-  <pre id="needContent">{
+        <summary>
+          查看结构化需求 JSON
+        </summary>
+
+
+        <pre id="needContent">{
   "budget": 1500,
   "destination": "云南",
   "duration": "7天",
@@ -328,52 +438,100 @@
   ]
 }</pre>
 
-</details>
       </details>
+
 
     </div>
 
   </section>
+
 
 
   <!-- ================= HOME RESULT ================= -->
-  <section id="homePlans" class="section hidden"></section>
+
+  <section
+    id="homePlans"
+    class="section hidden"
+  ></section>
+
 
 
   <!-- ================= PLANS ================= -->
-  <section id="plansSection" class="section">
+
+  <section
+    id="plansSection"
+    class="section"
+  >
 
     <div class="section-top">
 
       <div>
-        <div class="eyebrow small">STEP 02</div>
-        <h2>方案中心</h2>
-        <p>三个不同决策方向，一次完成比较。</p>
+
+        <div class="eyebrow small">
+          STEP 02
+        </div>
+
+        <h2>
+          方案中心
+        </h2>
+
+        <p>
+          三个不同决策方向，一次完成比较。
+        </p>
+
       </div>
 
+
       <div class="section-meta">
+
         <span class="mini-dot"></span>
+
         3 个可解释方案
+
       </div>
 
     </div>
 
-    <div id="planArea" class="plans"></div>
-    <div id="plansList"></div>
+
+    <div
+      id="planArea"
+      class="plans"
+    ></div>
+
+
+    <div
+      id="plansList"
+    ></div>
 
   </section>
 
 
+
   <!-- ================= CART ================= -->
-  <section id="cartSection" class="section">
+
+  <section
+    id="cartSection"
+    class="section"
+  >
 
     <div class="section-top">
 
       <div>
-        <div class="eyebrow small">STEP 03</div>
-        <h2>购物车</h2>
-        <p>锁定商品后，系统重新计算整套方案。</p>
+
+        <div class="eyebrow small">
+          STEP 03
+        </div>
+
+        <h2>
+          购物车
+        </h2>
+
+        <p>
+          锁定商品后，系统重新计算整套方案。
+        </p>
+
       </div>
+
 
       <button
         id="btnSubmit"
@@ -385,69 +543,155 @@
 
     </div>
 
+
+
     <div class="cart-layout">
+
 
       <div class="cart-main">
 
+
         <div class="cart-header">
-          <span>商品</span>
-          <span>操作</span>
+
+          <span>
+            商品
+          </span>
+
+          <span>
+            操作
+          </span>
+
         </div>
 
-        <div id="cartItems"></div>
+
+        <div
+          id="cartItems"
+        ></div>
+
 
       </div>
 
 
+
+      <!-- ================= SUMMARY ================= -->
+
       <aside class="summary-card">
 
+
         <div class="summary-top">
-          <span>ORDER SUMMARY</span>
-          <span class="summary-live">
-            <i></i> LIVE
+
+          <span>
+            ORDER SUMMARY
           </span>
+
+          <span class="summary-live">
+
+            <i></i>
+
+            LIVE
+
+          </span>
+
         </div>
 
-        <h3>结算摘要</h3>
+
+        <h3>
+          结算摘要
+        </h3>
+
 
         <div class="summary-row">
-          <span>商品数量</span>
-          <strong id="summaryCount">4</strong>
+
+          <span>
+            商品数量
+          </span>
+
+          <strong id="summaryCount">
+            4
+          </strong>
+
         </div>
 
-        <div class="summary-row">
-          <span>当前总价</span>
-          <strong id="summaryTotal">¥836</strong>
-        </div>
 
         <div class="summary-row">
-          <span>剩余预算</span>
-          <strong id="summaryRemain" class="green-text">¥664</strong>
+
+          <span>
+            当前总价
+          </span>
+
+          <strong id="summaryTotal">
+            ¥836
+          </strong>
+
         </div>
+
+
+        <div class="summary-row">
+
+          <span>
+            剩余预算
+          </span>
+
+          <strong
+            id="summaryRemain"
+            class="green-text"
+          >
+            ¥664
+          </strong>
+
+        </div>
+
+
 
         <div class="budget">
 
+
           <div class="budget-top">
-            <span>预算使用率</span>
-            <span>56%</span>
+
+            <span>
+              预算使用率
+            </span>
+
+            <span>
+              56%
+            </span>
+
           </div>
+
 
           <div class="budget-track">
-            <div id="budgetFill" class="budget-progress"></div>
+
+            <div
+              id="budgetFill"
+              class="budget-progress"
+            ></div>
+
           </div>
 
+
         </div>
+
+
 
         <button
           id="btnReturn"
           class="return-button"
           onclick="show('returnsSection')"
         >
-          <span>¥</span>
+
+          <span>
+            ¥
+          </span>
+
           价格太高？发起回访
+
         </button>
 
-        <div id="submitResult"></div>
+
+        <div
+          id="submitResult"
+        ></div>
+
 
       </aside>
 
@@ -456,123 +700,307 @@
   </section>
 
 
+
   <!-- ================= RETURNS ================= -->
-  <section id="returnsSection" class="section">
+
+  <section
+    id="returnsSection"
+    class="section"
+  >
 
     <div class="section-top">
 
+
       <div>
-        <div class="eyebrow small">STEP 04</div>
-        <h2>P0.5 · 价格回访</h2>
-        <p>用户因价格放弃后，系统尝试寻找更低价替代方案。</p>
+
+        <div class="eyebrow small">
+          STEP 04
+        </div>
+
+        <h2>
+          P0.5 · 价格回访
+        </h2>
+
+        <p>
+          用户因价格放弃后，系统尝试寻找更低价替代方案。
+        </p>
+
       </div>
 
-      <span class="experimental">EXPERIMENTAL</span>
+
+      <span class="experimental">
+        EXPERIMENTAL
+      </span>
+
 
     </div>
+
+
 
     <div class="return-flow">
 
+
       <div class="flow-line"></div>
 
+
       <div class="flow-step active">
-        <div class="flow-number">01</div>
-        <div>
-          <strong>用户删除商品</strong>
-          <p>仅允许删除未锁定商品</p>
+
+        <div class="flow-number">
+          01
         </div>
+
+        <div>
+
+          <strong>
+            用户删除商品
+          </strong>
+
+          <p>
+            仅允许删除未锁定商品
+          </p>
+
+        </div>
+
       </div>
 
-      <div class="flow-step">
-        <div class="flow-number">02</div>
-        <div>
-          <strong>选择价格原因</strong>
-          <p>用户明确选择「价格太高」</p>
-        </div>
-      </div>
+
 
       <div class="flow-step">
-        <div class="flow-number">03</div>
-        <div>
-          <strong>寻找替代商品</strong>
-          <p>同品类、更低价格、满足硬条件</p>
+
+        <div class="flow-number">
+          02
         </div>
+
+        <div>
+
+          <strong>
+            选择价格原因
+          </strong>
+
+          <p>
+            用户明确选择「价格太高」
+          </p>
+
+        </div>
+
       </div>
 
-      <div class="flow-step">
-        <div class="flow-number">04</div>
-        <div>
-          <strong>运营审核</strong>
-          <p>审核通过后才进入模拟触达</p>
-        </div>
-      </div>
+
 
       <div class="flow-step">
-        <div class="flow-number">05</div>
-        <div>
-          <strong>用户主动确认</strong>
-          <p>用户确认后重新加入购物车</p>
+
+        <div class="flow-number">
+          03
         </div>
+
+        <div>
+
+          <strong>
+            寻找替代商品
+          </strong>
+
+          <p>
+            同品类、更低价格、满足硬条件
+          </p>
+
+        </div>
+
       </div>
+
+
+
+      <div class="flow-step">
+
+        <div class="flow-number">
+          04
+        </div>
+
+        <div>
+
+          <strong>
+            运营审核
+          </strong>
+
+          <p>
+            审核通过后才进入模拟触达
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="flow-step">
+
+        <div class="flow-number">
+          05
+        </div>
+
+        <div>
+
+          <strong>
+            用户主动确认
+          </strong>
+
+          <p>
+            用户确认后重新加入购物车
+          </p>
+
+        </div>
+
+      </div>
+
 
     </div>
 
-    <div id="returnResult"></div>
-    <div id="returnTimeline"></div>
+
+    <div
+      id="returnResult"
+    ></div>
+
+
+    <div
+      id="returnTimeline"
+    ></div>
+
 
   </section>
+
 
 
   <!-- ================= VERIFY ================= -->
-  <section id="eventsSection" class="section">
+
+  <section
+    id="eventsSection"
+    class="section"
+  >
+
 
     <div class="section-top">
 
+
       <div>
-        <div class="eyebrow small">SYSTEM</div>
-        <h2>验证台</h2>
-        <p>查看当前 Demo 的事件与规则执行情况。</p>
+
+        <div class="eyebrow small">
+          SYSTEM
+        </div>
+
+        <h2>
+          验证台
+        </h2>
+
+        <p>
+          查看当前 Demo 的事件与规则执行情况。
+        </p>
+
       </div>
 
-      <span id="eventCount" class="event-count">LIVE EVENTS</span>
+
+      <span
+        id="eventCount"
+        class="event-count"
+      >
+        LIVE EVENTS
+      </span>
+
 
     </div>
+
+
 
     <div class="console">
 
+
       <div class="console-head">
-        <span>choicepilot://events</span>
-        <span>● connected</span>
+
+        <span>
+          choicepilot://events
+        </span>
+
+        <span>
+          ● connected
+        </span>
+
       </div>
 
-      <div id="log" class="event-log">
+
+      <div
+        id="log"
+        class="event-log"
+      >
+
         <div class="event-line">
-          <span class="event-time">--:--:--</span>
-          <span class="event-type">SYSTEM</span>
-          <span>ChoicePilot Demo initialized.</span>
+
+          <span class="event-time">
+            --:--:--
+          </span>
+
+          <span class="event-type">
+            SYSTEM
+          </span>
+
+          <span>
+            ChoicePilot Demo initialized.
+          </span>
+
         </div>
+
       </div>
 
-      <div id="eventLog"></div>
+
+      <div
+        id="eventLog"
+      ></div>
+
 
     </div>
 
+
   </section>
+
 
 </main>
 
 
+
+<!-- ================= FOOTER ================= -->
+
 <footer class="footer">
+
   <div class="footer-inner">
-    <strong>ChoicePilot</strong>
-    <span>AI Shopping Decision Engine</span>
-    <span>·</span>
-    <span>Pure Frontend Demo</span>
-    <span>·</span>
-    <span>非真实交易</span>
+
+    <strong>
+      ChoicePilot
+    </strong>
+
+    <span>
+      AI Shopping Decision Engine
+    </span>
+
+    <span>
+      ·
+    </span>
+
+    <span>
+      Pure Frontend Demo
+    </span>
+
+    <span>
+      ·
+    </span>
+
+    <span>
+      非真实交易
+    </span>
+
   </div>
+
 </footer>
 
+
+
+<!-- ================= JS ================= -->
 
 <script src="app.js"></script>
 
