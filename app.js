@@ -5,69 +5,117 @@
    ========================================================= */
 
 
-/* =========================
-   1. 基础数据
-   ========================= */
+/* =========================================================
+   1. 商品基础数据
+   ========================================================= */
 
 const catalog = [
   {
+    id: "bag-1",
     cat: "背包",
     name: "轻量城市徒步双肩包",
     price: 329,
-    reason: "轻量、防泼水、适合7天出行"
+    reason: "轻量、防泼水、适合7天出行",
+    tags: ["轻便", "防雨"]
   },
   {
+    id: "bag-2",
     cat: "背包",
     name: "云野轻旅防水背包",
     price: 259,
-    reason: "轻便、防泼水、容量适中"
+    reason: "轻便、防泼水、容量适中",
+    tags: ["轻便", "防雨"]
   },
+
   {
+    id: "coat-1",
     cat: "外套",
     name: "城市轻量防晒外套",
     price: 299,
-    reason: "防晒、轻量、易收纳"
+    reason: "防晒、轻量、易收纳",
+    tags: ["轻便", "防晒"]
   },
   {
+    id: "coat-2",
     cat: "外套",
     name: "轻户外防晒外套",
     price: 199,
-    reason: "防晒、轻量、价格友好"
+    reason: "防晒、轻量、价格友好",
+    tags: ["轻便", "防晒"]
   },
+
   {
+    id: "hat-1",
     cat: "帽子",
     name: "折叠防晒遮阳帽",
     price: 99,
-    reason: "可折叠、轻便"
+    reason: "可折叠、轻便",
+    tags: ["轻便", "防晒"]
   },
   {
+    id: "hat-2",
     cat: "帽子",
     name: "云南旅拍防晒帽",
     price: 129,
-    reason: "防晒、适合旅拍"
+    reason: "防晒、适合旅拍",
+    tags: ["轻便", "防晒"]
   },
+
   {
+    id: "rain-1",
     cat: "雨具",
     name: "便携晴雨两用伞",
     price: 79,
-    reason: "轻量、晴雨两用"
+    reason: "轻量、晴雨两用",
+    tags: ["轻便", "防雨"]
   },
   {
+    id: "rain-2",
     cat: "雨具",
     name: "超轻防风雨披",
     price: 89,
-    reason: "防雨、收纳小"
+    reason: "防雨、收纳小",
+    tags: ["轻便", "防雨"]
   }
 ];
 
-const BUDGET = 1500;
+
+/* =========================================================
+   2. 默认需求
+   ========================================================= */
+
+const DEFAULT_NEED = {
+  budget: 1500,
+  destination: "云南",
+  duration: "7天",
+  scene: "旅行",
+  categories: [
+    "背包",
+    "外套",
+    "防晒帽",
+    "便携雨具"
+  ],
+  hardConstraints: [
+    "轻便",
+    "防晒",
+    "防雨"
+  ],
+  existingItems: [
+    "运动鞋",
+    "太阳镜"
+  ],
+  originalText: ""
+};
 
 
-/* =========================
-   2. 当前状态
-   ========================= */
+/* =========================================================
+   3. 当前状态
+   ========================================================= */
+
+let userNeed = cloneNeed(DEFAULT_NEED);
 
 let currentPlan = [];
+
 let currentPlanLabel = "B";
 
 let locked = new Set();
@@ -77,13 +125,35 @@ let logs = [];
 let returnState = {
   status: "idle",
   deletedProduct: null,
-  alternative: null
+  deletedIndex: null,
+  alternative: null,
+  reason: null
 };
 
 
-/* =========================
-   3. 工具函数
-   ========================= */
+/* =========================================================
+   4. 工具函数
+   ========================================================= */
+
+function cloneNeed(need) {
+  return {
+    budget: Number(need.budget || 1500),
+    destination: need.destination || "",
+    duration: need.duration || "",
+    scene: need.scene || "",
+    categories: Array.isArray(need.categories)
+      ? [...need.categories]
+      : [],
+    hardConstraints: Array.isArray(need.hardConstraints)
+      ? [...need.hardConstraints]
+      : [],
+    existingItems: Array.isArray(need.existingItems)
+      ? [...need.existingItems]
+      : [],
+    originalText: need.originalText || ""
+  };
+}
+
 
 function total(items) {
   return items.reduce(function(sum, item) {
@@ -93,7 +163,7 @@ function total(items) {
 
 
 function formatMoney(value) {
-  return "¥" + Number(value).toLocaleString("zh-CN");
+  return "¥" + Number(value || 0).toLocaleString("zh-CN");
 }
 
 
@@ -104,9 +174,66 @@ function nowTime() {
 }
 
 
-/* =========================
-   4. 日志系统
-   ========================= */
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+function normalizeCategory(category) {
+  const value = String(category || "").trim();
+
+  if (
+    value.includes("帽")
+  ) {
+    return "帽子";
+  }
+
+  if (
+    value.includes("雨")
+  ) {
+    return "雨具";
+  }
+
+  if (
+    value.includes("背")
+  ) {
+    return "背包";
+  }
+
+  if (
+    value.includes("外套") ||
+    value.includes("衣")
+  ) {
+    return "外套";
+  }
+
+  return value;
+}
+
+
+function categoryLabel(category) {
+  const value = normalizeCategory(category);
+
+  if (value === "帽子") {
+    return "防晒帽";
+  }
+
+  if (value === "雨具") {
+    return "便携雨具";
+  }
+
+  return value;
+}
+
+
+/* =========================================================
+   5. 日志
+   ========================================================= */
 
 function log(message, type = "EVENT") {
 
@@ -127,6 +254,7 @@ function renderLogs() {
   if (!logBox) return;
 
   if (!logs.length) {
+
     logBox.innerHTML = `
       <div class="event-line">
         <span class="event-time">--:--:--</span>
@@ -134,20 +262,33 @@ function renderLogs() {
         <span>ChoicePilot Demo initialized.</span>
       </div>
     `;
+
     return;
   }
 
-  logBox.innerHTML = logs.map(function(item) {
+  logBox.innerHTML = logs
+    .slice()
+    .reverse()
+    .map(function(item) {
 
-    return `
-      <div class="event-line">
-        <span class="event-time">${item.time}</span>
-        <span class="event-type">${item.type}</span>
-        <span>${item.message}</span>
-      </div>
-    `;
+      return `
+        <div class="event-line">
+          <span class="event-time">
+            ${escapeHtml(item.time)}
+          </span>
 
-  }).join("");
+          <span class="event-type">
+            ${escapeHtml(item.type)}
+          </span>
+
+          <span>
+            ${escapeHtml(item.message)}
+          </span>
+        </div>
+      `;
+
+    })
+    .join("");
 
   const count = document.getElementById("eventCount");
 
@@ -157,13 +298,15 @@ function renderLogs() {
 }
 
 
-/* =========================
-   5. 页面导航
-   ========================= */
+/* =========================================================
+   6. 页面导航
+   ========================================================= */
 
 function show(id, btn) {
 
-  const sections = document.querySelectorAll("main > section");
+  const sections = document.querySelectorAll(
+    "main > section"
+  );
 
   sections.forEach(function(section) {
     section.classList.add("hidden");
@@ -175,9 +318,10 @@ function show(id, btn) {
     target.classList.remove("hidden");
   }
 
-  document.querySelectorAll(".nav-link").forEach(function(link) {
-    link.classList.remove("active");
-  });
+  document.querySelectorAll(".nav-link")
+    .forEach(function(link) {
+      link.classList.remove("active");
+    });
 
   if (btn) {
     btn.classList.add("active");
@@ -201,71 +345,54 @@ function show(id, btn) {
 }
 
 
-/* =========================
-   6. 导航点击
-   ========================= */
+/* =========================================================
+   7. 导航点击
+   ========================================================= */
 
-document.querySelectorAll(".nav-link").forEach(function(link) {
+document.addEventListener("DOMContentLoaded", function() {
 
-  link.addEventListener("click", function(event) {
+  document.querySelectorAll(".nav-link")
+    .forEach(function(link) {
 
-    event.preventDefault();
+      link.addEventListener("click", function(event) {
 
-    const targetId = link.getAttribute("href").replace("#", "");
+        event.preventDefault();
 
-    const target = document.getElementById(targetId);
+        const targetId =
+          link.getAttribute("href").replace("#", "");
 
-    if (!target) return;
+        const target =
+          document.getElementById(targetId);
 
-    document.querySelectorAll("main > section").forEach(function(section) {
-      section.classList.add("hidden");
+        if (!target) return;
+
+        show(targetId, link);
+
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+      });
+
     });
-
-    target.classList.remove("hidden");
-
-    document.querySelectorAll(".nav-link").forEach(function(item) {
-      item.classList.remove("active");
-    });
-
-    link.classList.add("active");
-
-    if (targetId === "plansSection") {
-      renderPlans();
-    }
-
-    if (targetId === "cartSection") {
-      renderCart();
-    }
-
-    if (targetId === "returnsSection") {
-      renderReturn();
-    }
-
-    if (targetId === "eventsSection") {
-      renderLogs();
-    }
-
-    target.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-  });
 
 });
 
 
-/* =========================
-   7. 快捷需求按钮
-   ========================= */
+/* =========================================================
+   8. 快捷需求
+   ========================================================= */
 
 function fillExample(button) {
 
-  const input = document.getElementById("needInput");
+  const input =
+    document.getElementById("needInput");
 
   if (!input) return;
 
-  const text = button.textContent;
+  const text =
+    button.textContent || "";
 
   if (text.includes("轻便")) {
 
@@ -286,179 +413,852 @@ function fillExample(button) {
 
     input.value =
       "下个月去云南轻旅行7天，预算1500元，需要背包、外套、帽子和便携雨具，希望轻便、防晒防雨，同时拍照好看。";
-
   }
 
   input.focus();
 
-  log("用户选择快捷需求：" + text, "INPUT");
+  log(
+    "用户选择快捷需求：" + text,
+    "INPUT"
+  );
 }
 
 
-/* =========================
-   8. AI 需求解析
-   ========================= */
+/* =========================================================
+   9. AI 需求解析
+   ========================================================= */
 
 function parseNeed() {
 
-  const panel = document.getElementById("reqPanel");
+  const input =
+    document.getElementById("needInput");
 
-  if (panel) {
-    panel.classList.remove("hidden");
+  const userText =
+    input && input.value.trim()
+      ? input.value.trim()
+      : "下个月去云南轻旅行7天，预算1500元，需要背包、外套、帽子和便携雨具，要求轻便、防晒防雨。";
+
+
+  const need = cloneNeed(DEFAULT_NEED);
+
+  need.originalText = userText;
+
+
+  /* ---------- 预算 ---------- */
+
+  const budgetMatch =
+    userText.match(
+      /(?:预算|最多|不超过|控制在)\s*(\d+(?:\.\d+)?)\s*(?:元|块|人民币)?/i
+    );
+
+  if (budgetMatch) {
+    need.budget =
+      Number(budgetMatch[1]);
   }
 
-  const input = document.getElementById("needInput");
 
-  const userText = input && input.value.trim()
-    ? input.value.trim()
-    : "下个月去云南轻旅行7天，预算1500元，需要背包、外套、帽子和便携雨具，要求轻便、防晒防雨。";
+  /* ---------- 天数 ---------- */
 
-  const needContent = document.getElementById("needContent");
+  const durationMatch =
+    userText.match(
+      /(\d+)\s*天/
+    );
 
-  if (needContent) {
-
-    needContent.textContent = JSON.stringify({
-      budget: 1500,
-      destination: "云南",
-      scene: "轻旅行",
-      duration: "7天",
-      categories: [
-        "背包",
-        "外套",
-        "防晒帽",
-        "便携雨具"
-      ],
-      hardConstraints: [
-        "轻便",
-        "防晒",
-        "防雨"
-      ],
-      existingItems: [
-        "运动鞋",
-        "太阳镜"
-      ],
-      originalText: userText
-    }, null, 2);
-
+  if (durationMatch) {
+    need.duration =
+      durationMatch[1] + "天";
   }
+
+
+  /* ---------- 目的地 ---------- */
+
+  const destinations = [
+    "云南",
+    "大理",
+    "丽江",
+    "昆明",
+    "成都",
+    "西藏",
+    "新疆",
+    "海南",
+    "三亚",
+    "北京",
+    "上海",
+    "广州",
+    "深圳",
+    "杭州",
+    "重庆",
+    "日本",
+    "东京",
+    "大阪",
+    "京都"
+  ];
+
+  const foundDestination =
+    destinations.find(function(item) {
+      return userText.includes(item);
+    });
+
+  if (foundDestination) {
+    need.destination =
+      foundDestination;
+  }
+
+
+  /* ---------- 场景 ---------- */
+
+  if (
+    userText.includes("轻旅行") ||
+    userText.includes("旅行")
+  ) {
+    need.scene = "旅行";
+  }
+
+  if (
+    userText.includes("通勤")
+  ) {
+    need.scene = "通勤";
+  }
+
+  if (
+    userText.includes("露营")
+  ) {
+    need.scene = "露营";
+  }
+
+  if (
+    userText.includes("登山") ||
+    userText.includes("徒步")
+  ) {
+    need.scene = "户外";
+  }
+
+
+  /* ---------- 购买品类 ---------- */
+
+  const categories = [];
+
+  if (
+    userText.includes("背包") ||
+    userText.includes("双肩包")
+  ) {
+    categories.push("背包");
+  }
+
+  if (
+    userText.includes("外套") ||
+    userText.includes("防晒衣")
+  ) {
+    categories.push("外套");
+  }
+
+  if (
+    userText.includes("帽子") ||
+    userText.includes("防晒帽")
+  ) {
+    categories.push("防晒帽");
+  }
+
+  if (
+    userText.includes("雨具") ||
+    userText.includes("雨伞") ||
+    userText.includes("雨衣") ||
+    userText.includes("便携雨具")
+  ) {
+    categories.push("便携雨具");
+  }
+
+  if (categories.length) {
+    need.categories = categories;
+  }
+
+
+  /* ---------- 硬条件 ---------- */
+
+  const constraints = [];
+
+  if (
+    userText.includes("轻便") ||
+    userText.includes("轻量") ||
+    userText.includes("轻")
+  ) {
+    constraints.push("轻便");
+  }
+
+  if (
+    userText.includes("防晒")
+  ) {
+    constraints.push("防晒");
+  }
+
+  if (
+    userText.includes("防雨") ||
+    userText.includes("防水")
+  ) {
+    constraints.push("防雨");
+  }
+
+
+  if (constraints.length) {
+    need.hardConstraints =
+      [...new Set(constraints)];
+  }
+
+
+  /* ---------- 已有物品 ---------- */
+
+  const existing = [];
+
+  if (
+    userText.includes("运动鞋") ||
+    userText.includes("鞋我已经有") ||
+    userText.includes("鞋子已经有")
+  ) {
+    existing.push("运动鞋");
+  }
+
+  if (
+    userText.includes("太阳镜") ||
+    userText.includes("墨镜")
+  ) {
+    existing.push("太阳镜");
+  }
+
+  if (existing.length) {
+    need.existingItems = existing;
+  }
+
+
+  userNeed = need;
+
+  updateNeedCard();
 
   log(
-    "AI 已解析需求：预算1500、4个购买品类、轻便/防晒/防雨",
+    "AI 已解析需求：预算" +
+    need.budget +
+    "、" +
+    need.categories.length +
+    "个购买品类、" +
+    need.hardConstraints.join(" / "),
     "AI"
   );
 
-  updateNeedCard();
+  saveDraft();
 
   return true;
 }
 
 
-/* =========================
-   9. 更新需求卡
-   ========================= */
+/* =========================================================
+   10. 需求卡
+   ========================================================= */
 
 function updateNeedCard() {
 
-  const values = {
-    ncDest: "云南",
-    ncScene: "轻旅行",
-    ncBudget: "¥1,500"
-  };
+  const panel =
+    document.getElementById("reqPanel");
 
-  Object.keys(values).forEach(function(id) {
+  if (panel) {
+    panel.classList.remove("hidden");
+  }
 
-    const el = document.getElementById(id);
 
-    if (el) {
-      el.textContent = values[id];
-    }
+  const needCard =
+    document.getElementById("needCard");
 
-  });
+  if (needCard) {
+    needCard.classList.remove("hidden");
+  }
 
-  const cats = document.getElementById("ncCats");
 
-  if (cats) {
+  const ncBudget =
+    document.getElementById("ncBudget");
 
-    cats.innerHTML = [
-      "背包",
-      "外套",
-      "防晒帽",
-      "便携雨具"
-    ].map(function(item) {
-      return `<span>${item}</span>`;
-    }).join("");
+  if (ncBudget) {
+    ncBudget.textContent =
+      formatMoney(userNeed.budget);
+  }
+
+
+  const ncDest =
+    document.getElementById("ncDest");
+
+  if (ncDest) {
+    ncDest.textContent =
+      userNeed.destination || "未指定";
+  }
+
+
+  const ncScene =
+    document.getElementById("ncScene");
+
+  if (ncScene) {
+
+    ncScene.textContent =
+      userNeed.scene +
+      (
+        userNeed.duration
+          ? " · " + userNeed.duration
+          : ""
+      );
 
   }
 
-  const hard = document.getElementById("ncHard");
 
-  if (hard) {
+  renderTagField(
+    "ncCats",
+    userNeed.categories,
+    "categories"
+  );
 
-    hard.innerHTML = [
-      "轻便",
-      "防晒",
-      "防雨"
-    ].map(function(item) {
-      return `<span class="green-tag">${item}</span>`;
-    }).join("");
 
-  }
+  renderTagField(
+    "ncHard",
+    userNeed.hardConstraints,
+    "hardConstraints"
+  );
 
-  const have = document.getElementById("ncHave");
 
-  if (have) {
+  renderTagField(
+    "ncHave",
+    userNeed.existingItems,
+    "existingItems"
+  );
 
-    have.innerHTML = [
-      "运动鞋",
-      "太阳镜"
-    ].map(function(item) {
-      return `<span class="gray-tag">${item}</span>`;
-    }).join("");
 
+  const needContent =
+    document.getElementById("needContent");
+
+  if (needContent) {
+
+    needContent.textContent =
+      JSON.stringify(
+        userNeed,
+        null,
+        2
+      );
   }
 }
 
 
-/* =========================
-   10. 三套方案
-   ========================= */
+/* =========================================================
+   11. 需求卡标签渲染
+   ========================================================= */
+
+function renderTagField(
+  elementId,
+  values,
+  field
+) {
+
+  const container =
+    document.getElementById(elementId);
+
+  if (!container) return;
+
+  const list =
+    Array.isArray(values)
+      ? values
+      : [];
+
+
+  const html =
+    list.map(function(value) {
+
+      return `
+        <span
+          class="item-tag editable-tag"
+        >
+          ${escapeHtml(value)}
+
+          <button
+            type="button"
+            class="tag-remove"
+            data-remove-field="${field}"
+            data-remove-value="${escapeHtml(value)}"
+            aria-label="删除"
+          >
+            ×
+          </button>
+        </span>
+      `;
+
+    }).join("");
+
+
+  container.innerHTML =
+    html +
+    `
+      <button
+        type="button"
+        class="add-tag"
+        data-add-field="${field}"
+      >
+        + 添加
+      </button>
+    `;
+}
+
+
+/* =========================================================
+   12. 编辑需求字段
+   ========================================================= */
+
+function editNeedField(field) {
+
+  if (field === "budget") {
+
+    const value =
+      prompt(
+        "请输入新的预算金额：",
+        String(userNeed.budget)
+      );
+
+    if (value === null) return;
+
+    const budget =
+      Number(value);
+
+    if (
+      !Number.isFinite(budget) ||
+      budget <= 0
+    ) {
+
+      alert("请输入有效的预算金额。");
+      return;
+    }
+
+    userNeed.budget = budget;
+  }
+
+
+  else if (
+    field === "destination"
+  ) {
+
+    const value =
+      prompt(
+        "请输入新的目的地：",
+        userNeed.destination
+      );
+
+    if (value === null) return;
+
+    if (!value.trim()) {
+      alert("目的地不能为空。");
+      return;
+    }
+
+    userNeed.destination =
+      value.trim();
+  }
+
+
+  else if (
+    field === "scene"
+  ) {
+
+    const value =
+      prompt(
+        "请输入新的场景：",
+        userNeed.scene
+      );
+
+    if (value === null) return;
+
+    if (!value.trim()) {
+      alert("场景不能为空。");
+      return;
+    }
+
+    userNeed.scene =
+      value.trim();
+  }
+
+
+  updateNeedCard();
+
+  saveDraft();
+
+  log(
+    "用户编辑需求字段：" + field,
+    "USER"
+  );
+}
+
+
+/* =========================================================
+   13. 添加 / 删除需求标签
+   ========================================================= */
+
+function addNeedTag(field) {
+
+  const placeholder = {
+    categories: "例如：背包",
+    hardConstraints: "例如：轻便",
+    existingItems: "例如：运动鞋"
+  };
+
+  const value =
+    prompt(
+      "请输入要添加的内容：",
+      placeholder[field] || ""
+    );
+
+  if (value === null) return;
+
+  const text =
+    value.trim();
+
+  if (!text) return;
+
+
+  if (
+    !Array.isArray(userNeed[field])
+  ) {
+    userNeed[field] = [];
+  }
+
+
+  if (
+    !userNeed[field].includes(text)
+  ) {
+    userNeed[field].push(text);
+  }
+
+
+  updateNeedCard();
+
+  saveDraft();
+
+  log(
+    "用户新增需求：" + text,
+    "USER"
+  );
+}
+
+
+function removeNeedTag(
+  field,
+  value
+) {
+
+  if (
+    !Array.isArray(userNeed[field])
+  ) {
+    return;
+  }
+
+  userNeed[field] =
+    userNeed[field].filter(
+      function(item) {
+        return item !== value;
+      }
+    );
+
+
+  updateNeedCard();
+
+  saveDraft();
+
+  log(
+    "用户删除需求：" + value,
+    "USER"
+  );
+}
+
+
+/* =========================================================
+   14. 需求卡编辑按钮事件
+   ========================================================= */
+
+document.addEventListener(
+  "click",
+  function(event) {
+
+    const editButton =
+      event.target.closest(
+        "[data-edit]"
+      );
+
+    if (editButton) {
+
+      const field =
+        editButton.getAttribute(
+          "data-edit"
+        );
+
+      if (
+        field === "hardRules"
+      ) {
+        editNeedField(
+          "hardConstraints"
+        );
+      } else {
+        editNeedField(field);
+      }
+
+      return;
+    }
+
+
+    const addButton =
+      event.target.closest(
+        "[data-add-field]"
+      );
+
+    if (addButton) {
+
+      addNeedTag(
+        addButton.getAttribute(
+          "data-add-field"
+        )
+      );
+
+      return;
+    }
+
+
+    const removeButton =
+      event.target.closest(
+        "[data-remove-field]"
+      );
+
+    if (removeButton) {
+
+      removeNeedTag(
+        removeButton.getAttribute(
+          "data-remove-field"
+        ),
+        removeButton.getAttribute(
+          "data-remove-value"
+        )
+      );
+
+      return;
+    }
+  }
+);
+
+
+/* =========================================================
+   15. 硬条件判断
+   ========================================================= */
+
+function productMatchesConstraints(
+  product,
+  constraints
+) {
+
+  const rules =
+    Array.isArray(constraints)
+      ? constraints
+      : [];
+
+
+  return rules.every(
+    function(rule) {
+
+      const value =
+        String(rule);
+
+      if (
+        value.includes("轻")
+      ) {
+        return product.tags.includes(
+          "轻便"
+        );
+      }
+
+      if (
+        value.includes("防晒")
+      ) {
+
+        return (
+          product.tags.includes("防晒") ||
+          product.cat === "背包" ||
+          product.cat === "雨具"
+        );
+      }
+
+      if (
+        value.includes("防雨") ||
+        value.includes("防水")
+      ) {
+
+        return (
+          product.tags.includes("防雨")
+        );
+      }
+
+      return true;
+    }
+  );
+}
+
+
+/* =========================================================
+   16. 获取某品类候选商品
+   ========================================================= */
+
+function getCandidatesForCategory(
+  category
+) {
+
+  const normalized =
+    normalizeCategory(category);
+
+  let candidates =
+    catalog.filter(
+      function(product) {
+
+        return (
+          product.cat === normalized
+        );
+      }
+    );
+
+
+  const strictCandidates =
+    candidates.filter(
+      function(product) {
+
+        return productMatchesConstraints(
+          product,
+          userNeed.hardConstraints
+        );
+
+      }
+    );
+
+
+  /*
+    由于“防晒”并不是背包/雨具必须满足的商品属性，
+    所以这里允许使用品类适配规则。
+  */
+
+  if (strictCandidates.length) {
+    candidates =
+      strictCandidates;
+  }
+
+
+  return candidates;
+}
+
+
+/* =========================================================
+   17. 生成单套方案
+   ========================================================= */
+
+function buildPlanByStrategy(
+  strategy
+) {
+
+  const result = [];
+
+  const categories =
+    Array.isArray(userNeed.categories)
+      ? userNeed.categories
+      : [];
+
+
+  categories.forEach(
+    function(category) {
+
+      const candidates =
+        getCandidatesForCategory(
+          category
+        );
+
+
+      if (!candidates.length) {
+        return;
+      }
+
+
+      let sorted =
+        [...candidates];
+
+
+      if (strategy === "A") {
+
+        sorted.sort(
+          function(a, b) {
+            return a.price - b.price;
+          }
+        );
+
+      }
+
+
+      else if (strategy === "C") {
+
+        sorted.sort(
+          function(a, b) {
+            return b.price - a.price;
+          }
+        );
+
+      }
+
+
+      else {
+
+        /*
+          B：综合平衡
+          优先选择中间价格商品
+        */
+
+        sorted.sort(
+          function(a, b) {
+
+            const avg =
+              sorted.reduce(
+                function(sum, item) {
+                  return sum + item.price;
+                },
+                0
+              ) / sorted.length;
+
+            return (
+              Math.abs(a.price - avg) -
+              Math.abs(b.price - avg)
+            );
+          }
+        );
+      }
+
+
+      if (sorted[0]) {
+        result.push(
+          sorted[0]
+        );
+      }
+
+    }
+  );
+
+
+  return result;
+}
+
+
+/* =========================================================
+   18. 三套方案
+   ========================================================= */
 
 function makePlan(type) {
 
-  if (type === "A") {
-
-    return [
-      catalog[1],
-      catalog[3],
-      catalog[4],
-      catalog[6]
-    ];
-
-  }
-
-  if (type === "C") {
-
-    return [
-      catalog[0],
-      catalog[2],
-      catalog[5],
-      catalog[7]
-    ];
-
-  }
-
-  return [
-    catalog[0],
-    catalog[2],
-    catalog[5],
-    catalog[6]
-  ];
+  return buildPlanByStrategy(
+    type
+  );
 }
 
 
-/* =========================
-   11. 方案描述
-   ========================= */
+/* =========================================================
+   19. 方案描述
+   ========================================================= */
 
 function getPlanMeta(label) {
 
@@ -466,19 +1266,22 @@ function getPlanMeta(label) {
 
     A: {
       title: "预算节省型",
-      desc: "优先控制总价，保留核心硬条件。",
+      desc:
+        "优先控制总价，保留核心硬条件。",
       tag: "LOW COST"
     },
 
     B: {
       title: "综合平衡型",
-      desc: "预算、体验与功能之间取得平衡。",
-      tag: "RECOMMENDED"
+      desc:
+        "预算、体验与功能之间取得平衡。",
+      tag: "BALANCED"
     },
 
     C: {
       title: "体验优先型",
-      desc: "更重视旅拍与体验，仍控制在预算内。",
+      desc:
+        "更重视体验与功能，尽量控制预算。",
       tag: "EXPERIENCE"
     }
 
@@ -488,86 +1291,125 @@ function getPlanMeta(label) {
 }
 
 
-/* =========================
-   12. 方案卡片
-   ========================= */
+/* =========================================================
+   20. 方案卡片
+   ========================================================= */
 
-function planCard(label, title, items, desc) {
+function planCard(
+  label,
+  title,
+  items,
+  desc
+) {
 
-  const amount = total(items);
+  const amount =
+    total(items);
 
-  const remain = BUDGET - amount;
+  const remain =
+    userNeed.budget - amount;
 
-  const meta = getPlanMeta(label);
+  const meta =
+    getPlanMeta(label);
 
-  const isSelected = currentPlanLabel === label;
+  const isSelected =
+    currentPlanLabel === label;
+
 
   return `
     <div
-      class="plan ${label === "B" ? "featured" : ""} ${isSelected ? "selected" : ""}"
+      class="plan
+        ${isSelected ? "selected" : ""}
+      "
       data-plan="${label}"
     >
 
       <div class="plan-top">
 
         <div>
+
           <div class="eyebrow small">
             PLAN ${label}
           </div>
 
-          <h3>${title}</h3>
+          <h3>
+            ${escapeHtml(title)}
+          </h3>
 
           <div class="muted">
-            ${desc}
+            ${escapeHtml(desc)}
           </div>
+
         </div>
 
         <span class="plan-tag">
-          ${meta.tag}
+          ${escapeHtml(meta.tag)}
         </span>
 
       </div>
 
 
       <div class="price">
+
         ${formatMoney(amount)}
 
         <small>
-          剩余 ${formatMoney(remain)}
+
+          ${
+            remain >= 0
+              ? "剩余 " + formatMoney(remain)
+              : "超预算 " + formatMoney(Math.abs(remain))
+          }
+
         </small>
+
       </div>
 
 
       <div class="plan-products">
 
-        ${items.map(function(product, index) {
+        ${
+          items.length
+            ? items.map(
+                function(product) {
 
-          const lockedStatus =
-            locked.has(index)
-              ? `<span class="locked">已锁定</span>`
-              : "";
+                  return `
+                    <div class="product">
 
-          return `
-            <div class="product">
+                      <div>
 
-              <div>
-                <b>${product.name}</b>
-                <br>
-                <small>
-                  ${product.cat} · ${product.reason}
-                </small>
+                        <b>
+                          ${escapeHtml(product.name)}
+                        </b>
+
+                        <br>
+
+                        <small>
+
+                          ${escapeHtml(product.cat)}
+                          ·
+                          ${escapeHtml(product.reason)}
+
+                        </small>
+
+                      </div>
+
+                      <div>
+
+                        ¥${product.price}
+
+                      </div>
+
+                    </div>
+                  `;
+
+                }
+              ).join("")
+            : `
+              <div class="muted">
+                暂无满足当前条件的商品
               </div>
-
-              <div>
-                ${lockedStatus}
-                <br>
-                ¥${product.price}
-              </div>
-
-            </div>
-          `;
-
-        }).join("")}
+            `
+        }
 
       </div>
 
@@ -578,7 +1420,11 @@ function planCard(label, title, items, desc) {
           class="btn btn-primary"
           onclick="usePlan('${label}')"
         >
-          ${isSelected ? "✓ 当前方案" : "采用方案"}
+          ${
+            isSelected
+              ? "✓ 当前方案"
+              : "采用方案"
+          }
         </button>
 
       </div>
@@ -588,19 +1434,29 @@ function planCard(label, title, items, desc) {
 }
 
 
-/* =========================
-   13. 渲染方案
-   ========================= */
+/* =========================================================
+   21. 渲染方案
+   ========================================================= */
 
 function renderPlans() {
 
-  const area = document.getElementById("planArea");
+  const area =
+    document.getElementById(
+      "planArea"
+    );
 
   if (!area) return;
 
-  const A = makePlan("A");
-  const B = makePlan("B");
-  const C = makePlan("C");
+
+  const A =
+    makePlan("A");
+
+  const B =
+    makePlan("B");
+
+  const C =
+    makePlan("C");
+
 
   area.innerHTML =
     planCard(
@@ -609,127 +1465,193 @@ function renderPlans() {
       A,
       "优先控制总价，保留核心硬条件"
     ) +
+
     planCard(
       "B",
       "综合平衡型",
       B,
       "预算、体验、功能之间取得平衡"
     ) +
+
     planCard(
       "C",
       "体验优先型",
       C,
-      "更重视旅拍与体验，仍不超预算"
+      "更重视体验与功能"
     );
 
-  const oldList = document.getElementById("plansList");
+
+  const oldList =
+    document.getElementById(
+      "plansList"
+    );
 
   if (oldList) {
     oldList.innerHTML = "";
   }
-
 }
 
 
-/* =========================
-   14. 生成方案
-   ========================= */
+/* =========================================================
+   22. 生成方案
+   ========================================================= */
 
 function generatePlans() {
 
-  parseNeed();
+  /*
+    非常重要：
+    这里不再调用 parseNeed()。
+    
+    因为用户已经可以修改需求卡。
+    如果这里再次 parseNeed()，
+    用户刚刚修改的内容就会被覆盖。
+  */
+
 
   currentPlanLabel = "B";
 
-  currentPlan = makePlan("B");
+  currentPlan =
+    makePlan("B");
 
-  locked = new Set();
+  locked =
+    new Set();
+
 
   renderPlans();
 
-  const homePlans = document.getElementById("homePlans");
+  saveDraft();
+
+
+  const homePlans =
+    document.getElementById(
+      "homePlans"
+    );
 
   if (homePlans) {
 
-    homePlans.classList.remove("hidden");
+    homePlans.classList.remove(
+      "hidden"
+    );
 
     homePlans.innerHTML = `
       <div class="success">
-        ✓ 需求已确认，AI 已生成 A / B / C 三套方案。
+
+        ✓ 需求已确认，
+        AI 已根据当前需求生成
+        A / B / C 三套方案。
+
       </div>
     `;
-
   }
 
+
   log(
-    "用户确认需求；规则引擎生成 A/B/C 三套方案",
+    "用户确认需求；规则引擎根据修改后的需求生成 A/B/C 三套方案",
     "RULE"
   );
 
+
   show("plansSection");
 
-  const plansSection = document.getElementById("plansSection");
+
+  const plansSection =
+    document.getElementById(
+      "plansSection"
+    );
 
   if (plansSection) {
 
-    setTimeout(function() {
+    setTimeout(
+      function() {
 
-      plansSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+        plansSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
 
-    }, 50);
+      },
+      50
+    );
 
   }
 }
 
 
-/* =========================
-   15. 方案选择
-   ========================= */
+/* =========================================================
+   23. 方案点击高亮
+   ========================================================= */
 
-document.addEventListener("click", function(event) {
+document.addEventListener(
+  "click",
+  function(event) {
 
-  const plan = event.target.closest(".plan");
+    const plan =
+      event.target.closest(
+        ".plan"
+      );
 
-  if (!plan) return;
-
-  const label = plan.dataset.plan;
-
-  if (!label) return;
-
-  document.querySelectorAll(".plan").forEach(function(item) {
-
-    item.classList.remove("selected");
-    item.classList.remove("featured");
-
-  });
-
-  plan.classList.add("selected");
-
-  currentPlanLabel = label;
-
-  log(
-    "用户查看方案 " + label + "：" +
-    getPlanMeta(label).title,
-    "PLAN"
-  );
-
-});
+    if (!plan) return;
 
 
-/* =========================
-   16. 采用方案
-   ========================= */
+    const label =
+      plan.dataset.plan;
+
+    if (!label) return;
+
+
+    document.querySelectorAll(
+      ".plan"
+    ).forEach(
+      function(item) {
+
+        item.classList.remove(
+          "selected"
+        );
+
+        item.classList.remove(
+          "featured"
+        );
+
+      }
+    );
+
+
+    plan.classList.add(
+      "selected"
+    );
+
+
+    currentPlanLabel =
+      label;
+
+
+    log(
+      "用户查看方案 " +
+      label +
+      "：" +
+      getPlanMeta(label).title,
+      "PLAN"
+    );
+
+  }
+);
+
+
+/* =========================================================
+   24. 采用方案
+   ========================================================= */
 
 function usePlan(label) {
 
-  currentPlanLabel = label;
+  currentPlanLabel =
+    label;
 
-  currentPlan = makePlan(label);
+  currentPlan =
+    makePlan(label);
 
-  locked = new Set();
+  locked =
+    new Set();
+
 
   log(
     "用户采用方案 " +
@@ -739,156 +1661,222 @@ function usePlan(label) {
     "PLAN"
   );
 
+
   saveDraft();
 
   renderCart();
 
   show("cartSection");
 
-  const cartSection = document.getElementById("cartSection");
+
+  const cartSection =
+    document.getElementById(
+      "cartSection"
+    );
 
   if (cartSection) {
 
-    setTimeout(function() {
+    setTimeout(
+      function() {
 
-      cartSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+        cartSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
 
-    }, 50);
-
+      },
+      50
+    );
   }
 }
 
 
-/* =========================
-   17. 渲染购物车
-   ========================= */
+/* =========================================================
+   25. 渲染购物车
+   ========================================================= */
 
 function renderCart() {
 
-  const container = document.getElementById("cartItems");
+  const container =
+    document.getElementById(
+      "cartItems"
+    );
 
   if (!container) return;
 
+
   if (!currentPlan.length) {
 
-    currentPlan = makePlan(currentPlanLabel || "B");
-
+    currentPlan =
+      makePlan(
+        currentPlanLabel || "B"
+      );
   }
 
-  container.innerHTML = currentPlan.map(function(product, index) {
 
-    const isLocked = locked.has(index);
+  container.innerHTML =
+    currentPlan.map(
+      function(product, index) {
 
-    return `
-      <div class="cartrow">
-
-        <div>
-
-          <b>${product.name}</b>
-
-          <br>
-
-          <small>
-            ${product.cat} · ${product.reason}
-          </small>
-
-        </div>
+        const isLocked =
+          locked.has(index);
 
 
-        <div style="text-align:right">
+        return `
+          <div class="cartrow">
 
-          <b>
-            ¥${product.price}
-          </b>
+            <div>
 
-          <br>
+              <b>
+                ${escapeHtml(product.name)}
+              </b>
 
-          <button
-            class="ghost"
-            onclick="toggleLock(${index})"
-          >
-            ${isLocked ? "🔒 已锁定" : "锁定商品"}
-          </button>
+              <br>
 
-          <button
-            class="ghost ${isLocked ? "hidden" : ""}"
-            onclick="replaceItem(${index})"
-          >
-            替换
-          </button>
+              <small>
+                ${escapeHtml(product.cat)}
+                ·
+                ${escapeHtml(product.reason)}
+              </small>
 
-        </div>
+            </div>
 
-      </div>
-    `;
 
-  }).join("");
+            <div style="text-align:right">
+
+              <b>
+                ¥${product.price}
+              </b>
+
+              <br>
+
+              <button
+                class="ghost"
+                onclick="toggleLock(${index})"
+              >
+
+                ${
+                  isLocked
+                    ? "🔒 已锁定"
+                    : "锁定商品"
+                }
+
+              </button>
+
+
+              <button
+                class="ghost
+                  ${isLocked ? "hidden" : ""}
+                "
+                onclick="replaceItem(${index})"
+              >
+                替换
+              </button>
+
+            </div>
+
+          </div>
+        `;
+
+      }
+    ).join("");
 
 
   updateCartSummary();
-
 }
 
 
-/* =========================
-   18. 购物车摘要
-   ========================= */
+/* =========================================================
+   26. 购物车摘要
+   ========================================================= */
 
 function updateCartSummary() {
 
-  const amount = total(currentPlan);
+  const amount =
+    total(currentPlan);
 
-  const remain = BUDGET - amount;
+  const remain =
+    userNeed.budget - amount;
 
-  const count = document.getElementById("summaryCount");
-  const summaryTotal = document.getElementById("summaryTotal");
-  const summaryRemain = document.getElementById("summaryRemain");
-  const budgetFill = document.getElementById("budgetFill");
+
+  const count =
+    document.getElementById(
+      "summaryCount"
+    );
+
+  const summaryTotal =
+    document.getElementById(
+      "summaryTotal"
+    );
+
+  const summaryRemain =
+    document.getElementById(
+      "summaryRemain"
+    );
+
+  const budgetFill =
+    document.getElementById(
+      "budgetFill"
+    );
+
 
   if (count) {
-    count.textContent = currentPlan.length;
+    count.textContent =
+      currentPlan.length;
   }
 
+
   if (summaryTotal) {
-    summaryTotal.textContent = formatMoney(amount);
+    summaryTotal.textContent =
+      formatMoney(amount);
   }
+
 
   if (summaryRemain) {
 
     summaryRemain.textContent =
-      formatMoney(Math.max(remain, 0));
+      formatMoney(
+        Math.max(remain, 0)
+      );
 
     summaryRemain.classList.toggle(
       "green-text",
       remain >= 0
     );
-
   }
+
 
   if (budgetFill) {
 
     const percentage =
-      Math.min(
-        Math.max((amount / BUDGET) * 100, 0),
-        100
-      );
+      userNeed.budget > 0
+        ? Math.min(
+            Math.max(
+              (
+                amount /
+                userNeed.budget
+              ) * 100,
+              0
+            ),
+            100
+          )
+        : 100;
 
-    budgetFill.style.width = percentage + "%";
-
+    budgetFill.style.width =
+      percentage + "%";
   }
 }
 
 
-/* =========================
-   19. 锁定商品
-   ========================= */
+/* =========================================================
+   27. 锁定商品
+   ========================================================= */
 
 function toggleLock(index) {
 
-  if (locked.has(index)) {
+  if (
+    locked.has(index)
+  ) {
 
     locked.delete(index);
 
@@ -907,8 +1895,8 @@ function toggleLock(index) {
       currentPlan[index].name,
       "CART"
     );
-
   }
+
 
   renderCart();
 
@@ -916,13 +1904,16 @@ function toggleLock(index) {
 }
 
 
-/* =========================
-   20. 替换商品
-   ========================= */
+/* =========================================================
+   28. 替换商品
+   ========================================================= */
 
 function replaceItem(index) {
 
-  if (!currentPlan[index]) return;
+  if (!currentPlan[index]) {
+    return;
+  }
+
 
   if (locked.has(index)) {
 
@@ -934,16 +1925,43 @@ function replaceItem(index) {
     return;
   }
 
-  const current = currentPlan[index];
 
-  const alternatives = catalog.filter(function(item) {
+  const current =
+    currentPlan[index];
 
-    return (
-      item.cat === current.cat &&
-      item.name !== current.name
+
+  let alternatives =
+    catalog.filter(
+      function(item) {
+
+        return (
+          item.cat === current.cat &&
+          item.name !== current.name &&
+          productMatchesConstraints(
+            item,
+            userNeed.hardConstraints
+          )
+        );
+
+      }
     );
 
-  });
+
+  if (!alternatives.length) {
+
+    alternatives =
+      catalog.filter(
+        function(item) {
+
+          return (
+            item.cat === current.cat &&
+            item.name !== current.name
+          );
+
+        }
+      );
+  }
+
 
   if (!alternatives.length) {
 
@@ -956,9 +1974,21 @@ function replaceItem(index) {
     return;
   }
 
-  const alternative = alternatives[0];
 
-  currentPlan[index] = alternative;
+  alternatives.sort(
+    function(a, b) {
+      return a.price - b.price;
+    }
+  );
+
+
+  const alternative =
+    alternatives[0];
+
+
+  currentPlan[index] =
+    alternative;
+
 
   log(
     "替换商品：" +
@@ -968,71 +1998,140 @@ function replaceItem(index) {
     "CART"
   );
 
+
   renderCart();
 
   saveDraft();
 }
 
 
-/* =========================
-   21. 模拟提交
-   ========================= */
+/* =========================================================
+   29. 模拟提交
+   ========================================================= */
 
 function submitCart() {
 
   if (!currentPlan.length) {
 
-    currentPlan = makePlan(currentPlanLabel || "B");
-
+    currentPlan =
+      makePlan(
+        currentPlanLabel || "B"
+      );
   }
 
-  const serverTotal = total(currentPlan);
 
-  const result = document.getElementById("submitResult");
+  const serverTotal =
+    total(currentPlan);
+
+  const over =
+    serverTotal >
+    userNeed.budget;
+
+
+  const result =
+    document.getElementById(
+      "submitResult"
+    );
+
 
   if (result) {
 
-    result.innerHTML = `
-      <div class="success">
+    if (over) {
 
-        <strong>✓ 模拟提交成功</strong>
+      result.innerHTML = `
+        <div class="danger">
 
-        <br><br>
+          <strong>
+            ⚠ 模拟提交未通过
+          </strong>
 
-        服务端重新计算总价：
-        <b>${formatMoney(serverTotal)}</b>
+          <br><br>
 
-        <br>
+          当前总价：
+          <b>${formatMoney(serverTotal)}</b>
 
-        购物车状态：
-        <b>已提交</b>
+          <br>
 
-        <br>
+          当前预算：
+          <b>${formatMoney(userNeed.budget)}</b>
 
-        <span style="opacity:.7">
-          当前不代表真实支付、库存、订单或物流。
-        </span>
+          <br><br>
 
-      </div>
-    `;
+          已超过预算，
+          可进入价格回访流程。
 
+        </div>
+      `;
+
+    } else {
+
+      result.innerHTML = `
+        <div class="success">
+
+          <strong>
+            ✓ 模拟提交成功
+          </strong>
+
+          <br><br>
+
+          服务端重新计算总价：
+          <b>${formatMoney(serverTotal)}</b>
+
+          <br>
+
+          剩余预算：
+          <b>
+            ${formatMoney(
+              userNeed.budget -
+              serverTotal
+            )}
+          </b>
+
+          <br><br>
+
+          <span style="opacity:.7">
+            当前不代表真实支付、库存、订单或物流。
+          </span>
+
+        </div>
+      `;
+    }
   }
 
+
   log(
-    "后端校验通过；服务端重算总价 " +
-    formatMoney(serverTotal) +
-    "；模拟提交成功",
+    over
+      ? "后端校验拒绝：购物车超预算"
+      : "后端校验通过；模拟提交成功",
     "SERVER"
   );
 
+
   saveDraft();
 
+
+  return {
+    status:
+      over
+        ? "reject"
+        : "ok",
+
+    server_total:
+      serverTotal,
+
+    remaining:
+      userNeed.budget -
+      serverTotal,
+
+    over_budget:
+      over
+  };
 }
 
 
-/* =========================
-   22. 保存购物车草稿
-   ========================= */
+/* =========================================================
+   30. 保存草稿
+   ========================================================= */
 
 function saveDraft() {
 
@@ -1041,9 +2140,19 @@ function saveDraft() {
     localStorage.setItem(
       "choicepilot_draft",
       JSON.stringify({
-        currentPlan: currentPlan,
-        currentPlanLabel: currentPlanLabel,
-        locked: Array.from(locked)
+
+        userNeed:
+          userNeed,
+
+        currentPlan:
+          currentPlan,
+
+        currentPlanLabel:
+          currentPlanLabel,
+
+        locked:
+          Array.from(locked)
+
       })
     );
 
@@ -1053,14 +2162,13 @@ function saveDraft() {
       "localStorage 保存失败",
       error
     );
-
   }
 }
 
 
-/* =========================
-   23. 恢复购物车草稿
-   ========================= */
+/* =========================================================
+   31. 恢复草稿
+   ========================================================= */
 
 function loadDraft() {
 
@@ -1073,25 +2181,48 @@ function loadDraft() {
 
     if (!raw) return;
 
-    const data = JSON.parse(raw);
 
-    if (Array.isArray(data.currentPlan)) {
+    const data =
+      JSON.parse(raw);
 
-      currentPlan = data.currentPlan;
 
+    if (data.userNeed) {
+
+      userNeed =
+        cloneNeed(
+          data.userNeed
+        );
     }
+
+
+    if (
+      Array.isArray(
+        data.currentPlan
+      )
+    ) {
+
+      currentPlan =
+        data.currentPlan;
+    }
+
 
     if (data.currentPlanLabel) {
 
       currentPlanLabel =
         data.currentPlanLabel;
-
     }
 
-    if (Array.isArray(data.locked)) {
 
-      locked = new Set(data.locked);
+    if (
+      Array.isArray(
+        data.locked
+      )
+    ) {
 
+      locked =
+        new Set(
+          data.locked
+        );
     }
 
   } catch (error) {
@@ -1100,25 +2231,31 @@ function loadDraft() {
       "localStorage 恢复失败",
       error
     );
-
   }
 }
 
 
-/* =========================
-   24. P0.5 回访
-   ========================= */
+/* =========================================================
+   32. P0.5：渲染价格回访
+   ========================================================= */
 
 function renderReturn() {
 
   const result =
-    document.getElementById("returnResult");
+    document.getElementById(
+      "returnResult"
+    );
 
   if (!result) return;
 
-  if (returnState.status === "approved") {
+
+  if (
+    returnState.status ===
+    "approved"
+  ) {
 
     result.innerHTML = `
+
       <div class="success">
 
         <strong>
@@ -1132,16 +2269,24 @@ function renderReturn() {
         <br><br>
 
         <b>
-          ${returnState.alternative
-            ? returnState.alternative.name
-            : "暂无"}
+          ${
+            returnState.alternative
+              ? escapeHtml(
+                  returnState.alternative.name
+                )
+              : "暂无"
+          }
         </b>
 
         <br>
 
-        ¥${returnState.alternative
-          ? returnState.alternative.price
-          : "-"}
+        ${
+          returnState.alternative
+            ? formatMoney(
+                returnState.alternative.price
+              )
+            : "-"
+        }
 
         <div style="margin-top:12px">
 
@@ -1160,19 +2305,31 @@ function renderReturn() {
     return;
   }
 
-  if (returnState.status === "rejected") {
+
+  if (
+    returnState.status ===
+    "rejected"
+  ) {
 
     result.innerHTML = `
       <div class="danger">
-        审核拒绝，当前回访任务终止。
+
+        审核拒绝，
+        当前回访任务终止。
+
       </div>
     `;
 
     return;
   }
 
+
   result.innerHTML = `
-    <div class="panel" style="margin-top:15px">
+
+    <div
+      class="panel"
+      style="margin-top:15px"
+    >
 
       <div class="eyebrow small">
         P0.5 SIMULATION
@@ -1183,8 +2340,13 @@ function renderReturn() {
       </h3>
 
       <p style="color:#777;font-size:12px">
-        模拟运营审核后触达用户，并允许用户主动确认重新加购。
+
+        用户明确选择“价格太高”
+        后，系统寻找同品类更低价替代，
+        再经过运营审核。
+
       </p>
+
 
       <div class="actions">
 
@@ -1209,26 +2371,70 @@ function renderReturn() {
 }
 
 
-/* =========================
-   25. 发起回访
-   ========================= */
+/* =========================================================
+   33. P0.5：发起回访
+   ========================================================= */
 
 function startReturn() {
 
   if (!currentPlan.length) {
 
-    currentPlan = makePlan(
-      currentPlanLabel || "B"
-    );
-
+    currentPlan =
+      makePlan(
+        currentPlanLabel || "B"
+      );
   }
 
+
+  /*
+    先让用户明确选择原因。
+    不再默认认为“删除 = 价格太高”。
+  */
+
+  const reason =
+    prompt(
+      "请选择删除原因：\n\n" +
+      "请输入：价格太高\n\n" +
+      "如果不是价格原因，请取消。",
+      "价格太高"
+    );
+
+
+  if (
+    reason === null
+  ) {
+
+    log(
+      "P0.5：用户取消价格回访",
+      "RETURN"
+    );
+
+    return;
+  }
+
+
+  if (
+    reason.trim() !==
+    "价格太高"
+  ) {
+
+    alert(
+      "当前 P0.5 价格回访仅支持“价格太高”原因。"
+    );
+
+    return;
+  }
+
+
   const targetIndex =
-    currentPlan.findIndex(function(item, index) {
+    currentPlan.findIndex(
+      function(item, index) {
 
-      return !locked.has(index);
+        return !locked.has(index);
 
-    });
+      }
+    );
+
 
   if (targetIndex === -1) {
 
@@ -1239,38 +2445,118 @@ function startReturn() {
     return;
   }
 
+
   const deleted =
     currentPlan[targetIndex];
 
+
   returnState = {
-    status: "review",
-    deletedProduct: deleted,
-    alternative: null
+
+    status:
+      "review",
+
+    deletedProduct:
+      deleted,
+
+    deletedIndex:
+      targetIndex,
+
+    alternative:
+      null,
+
+    reason:
+      "价格太高"
   };
 
-  currentPlan.splice(targetIndex, 1);
+
+  /*
+    删除当前商品
+  */
+
+  currentPlan.splice(
+    targetIndex,
+    1
+  );
+
 
   log(
-    "P0.5：用户删除商品并选择「价格太高」：" +
+    "P0.5：用户删除商品并明确选择「价格太高」：" +
     deleted.name,
     "RETURN"
   );
 
-  const alternatives =
-    catalog.filter(function(item) {
 
-      return (
-        item.cat === deleted.cat &&
-        item.name !== deleted.name &&
-        item.price < deleted.price
+  /*
+    找同品类更低价商品
+  */
+
+  let alternatives =
+    catalog.filter(
+      function(item) {
+
+        return (
+
+          item.cat ===
+          deleted.cat &&
+
+          item.name !==
+          deleted.name &&
+
+          item.price <
+          deleted.price &&
+
+          productMatchesConstraints(
+            item,
+            userNeed.hardConstraints
+          )
+
+        );
+
+      }
+    );
+
+
+  /*
+    如果严格条件下没有，
+    再使用同品类低价候选。
+  */
+
+  if (!alternatives.length) {
+
+    alternatives =
+      catalog.filter(
+        function(item) {
+
+          return (
+
+            item.cat ===
+            deleted.cat &&
+
+            item.name !==
+            deleted.name &&
+
+            item.price <
+            deleted.price
+
+          );
+
+        }
       );
+  }
 
-    });
+
+  alternatives.sort(
+    function(a, b) {
+      return a.price - b.price;
+    }
+  );
+
 
   if (alternatives.length) {
 
     returnState.alternative =
       alternatives[0];
+
 
     log(
       "P0.5：系统找到同品类低价替代：" +
@@ -1284,8 +2570,8 @@ function startReturn() {
       "P0.5：没有找到符合条件的低价替代商品",
       "RULE"
     );
-
   }
+
 
   renderReturn();
 
@@ -1293,16 +2579,19 @@ function startReturn() {
 
   saveDraft();
 
+  renderCart();
 }
 
 
-/* =========================
-   26. 审核通过
-   ========================= */
+/* =========================================================
+   34. P0.5：审核通过
+   ========================================================= */
 
 function approveReturn() {
 
-  if (!returnState.alternative) {
+  if (
+    !returnState.alternative
+  ) {
 
     log(
       "P0.5：没有可用替代商品，无法审核通过",
@@ -1312,55 +2601,68 @@ function approveReturn() {
     return;
   }
 
-  returnState.status = "approved";
+
+  returnState.status =
+    "approved";
+
 
   log(
     "P0.5：运营审核通过，进入模拟触达",
     "OPS"
   );
 
+
   log(
     "P0.5：模拟触达完成，等待用户主动确认",
     "MESSAGE"
   );
 
+
   renderReturn();
 }
 
 
-/* =========================
-   27. 审核拒绝
-   ========================= */
+/* =========================================================
+   35. P0.5：审核拒绝
+   ========================================================= */
 
 function rejectReturn() {
 
-  returnState.status = "rejected";
+  returnState.status =
+    "rejected";
+
 
   log(
     "P0.5：运营审核拒绝，任务终止",
     "OPS"
   );
 
+
   renderReturn();
 }
 
 
-/* =========================
-   28. 用户重新加购
-   ========================= */
+/* =========================================================
+   36. P0.5：重新加购
+   ========================================================= */
 
 function readd() {
 
-  if (!returnState.alternative) {
-
+  if (
+    !returnState.alternative
+  ) {
     return;
   }
+
 
   currentPlan.push(
     returnState.alternative
   );
 
-  returnState.status = "readded";
+
+  returnState.status =
+    "readded";
+
 
   log(
     "P0.5：用户主动确认重新加购：" +
@@ -1368,8 +2670,15 @@ function readd() {
     "USER"
   );
 
+
   const newTotal =
     total(currentPlan);
+
+
+  const valid =
+    newTotal <=
+    userNeed.budget;
+
 
   log(
     "P0.5：购物车重新校验，总价 " +
@@ -1377,37 +2686,63 @@ function readd() {
     "SERVER"
   );
 
+
   const result =
-    document.getElementById("returnResult");
+    document.getElementById(
+      "returnResult"
+    );
+
 
   if (result) {
 
     result.innerHTML = `
-      <div class="success">
+
+      <div class="${
+        valid
+          ? "success"
+          : "danger"
+      }">
 
         <strong>
-          ✓ 用户主动确认重新加购
+
+          ${
+            valid
+              ? "✓ 用户主动确认重新加购"
+              : "⚠ 重新加购后超出预算"
+          }
+
         </strong>
 
         <br><br>
 
-        购物车重新校验完成。
+        当前总价：
+        <b>
+          ${formatMoney(newTotal)}
+        </b>
 
         <br>
 
-        当前总价：
-        <b>${formatMoney(newTotal)}</b>
+        当前预算：
+        <b>
+          ${formatMoney(
+            userNeed.budget
+          )}
+        </b>
 
         <br><br>
 
         <span style="opacity:.7">
-          模拟流程已完成。
+
+          已完成重新校验。
+          当前仍为模拟流程，
+          不代表真实订单。
+
         </span>
 
       </div>
     `;
-
   }
+
 
   saveDraft();
 
@@ -1415,62 +2750,192 @@ function readd() {
 }
 
 
-/* =========================
-   29. 价格回访按钮
-   ========================= */
+/* =========================================================
+   37. 页面按钮绑定
+   ========================================================= */
 
-const returnButton =
-  document.getElementById("btnReturn");
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
 
-if (returnButton) {
+    /*
+      最重要的一处：
+      开始分析只负责“解析需求”，
+      不直接生成方案。
+    */
 
-  returnButton.onclick = function() {
-
-    startReturn();
-
-  };
-
-}
-
-
-/* =========================
-   30. 保存草稿按钮
-   ========================= */
-
-const saveButton =
-  document.getElementById("btnSaveCart");
-
-if (saveButton) {
-
-  saveButton.addEventListener(
-    "click",
-    function() {
-
-      saveDraft();
-
-      log(
-        "购物车草稿已保存到浏览器 localStorage",
-        "SYSTEM"
+    const parseButton =
+      document.getElementById(
+        "btnParse"
       );
 
-      saveButton.textContent = "✓ 已保存";
 
-      setTimeout(function() {
+    if (parseButton) {
 
-        saveButton.textContent =
-          "保存草稿";
+      parseButton.onclick =
+        function(event) {
 
-      }, 1600);
+          if (event) {
+            event.preventDefault();
+          }
 
+          parseNeed();
+
+          const needCard =
+            document.getElementById(
+              "needCard"
+            );
+
+          if (needCard) {
+
+            setTimeout(
+              function() {
+
+                needCard.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start"
+                });
+
+              },
+              100
+            );
+          }
+
+        };
     }
-  );
-
-}
 
 
-/* =========================
-   31. 页面初始化
-   ========================= */
+    /*
+      确认需求
+      → 才生成方案
+    */
+
+    const confirmButton =
+      document.getElementById(
+        "btnConfirm"
+      );
+
+
+    if (confirmButton) {
+
+      confirmButton.onclick =
+        function(event) {
+
+          if (event) {
+            event.preventDefault();
+          }
+
+          generatePlans();
+
+        };
+    }
+
+
+    /*
+      购物车保存
+    */
+
+    const saveButton =
+      document.getElementById(
+        "btnSaveCart"
+      );
+
+
+    if (saveButton) {
+
+      saveButton.onclick =
+        function(event) {
+
+          if (event) {
+            event.preventDefault();
+          }
+
+          saveDraft();
+
+          log(
+            "购物车及当前需求已保存到浏览器 localStorage",
+            "SYSTEM"
+          );
+
+
+          const oldText =
+            saveButton.textContent;
+
+
+          saveButton.textContent =
+            "✓ 已保存";
+
+
+          setTimeout(
+            function() {
+
+              saveButton.textContent =
+                oldText || "保存草稿";
+
+            },
+            1600
+          );
+
+        };
+    }
+
+
+    /*
+      提交按钮
+    */
+
+    const submitButton =
+      document.getElementById(
+        "btnSubmit"
+      );
+
+
+    if (submitButton) {
+
+      submitButton.onclick =
+        function(event) {
+
+          if (event) {
+            event.preventDefault();
+          }
+
+          submitCart();
+
+        };
+    }
+
+
+    /*
+      价格回访
+    */
+
+    const returnButton =
+      document.getElementById(
+        "btnReturn"
+      );
+
+
+    if (returnButton) {
+
+      returnButton.onclick =
+        function(event) {
+
+          if (event) {
+            event.preventDefault();
+          }
+
+          startReturn();
+
+        };
+    }
+
+  }
+);
+
+
+/* =========================================================
+   38. 初始化
+   ========================================================= */
 
 loadDraft();
 
