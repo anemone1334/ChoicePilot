@@ -1,200 +1,450 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChoicePilot — AI 购物决策助手</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>ChoicePilot — AI Shopping Decision Engine</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
-<!-- 背景光晕 -->
-<div class="bg-glow bg-glow-1"></div>
-<div class="bg-glow bg-glow-2"></div>
+<!-- 背景 -->
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
 
-<!-- 顶部导航 -->
+<!-- ================= NAV ================= -->
 <nav class="nav">
   <div class="nav-inner">
-    <div class="logo">
-      <span class="logo-icon">🧳</span>
-      <span class="logo-text">ChoicePilot</span>
-    </div>
+
+    <a class="brand" href="#input">
+      <span class="brand-mark">C</span>
+      <span>ChoicePilot</span>
+    </a>
+
     <div class="nav-links">
-      <a href="#input" class="nav-link active" data-target="input">需求</a>
-      <a href="#needCard" class="nav-link" data-target="needCard">需求卡</a>
-      <a href="#plansSection" class="nav-link" data-target="plansSection">方案</a>
-      <a href="#cartSection" class="nav-link" data-target="cartSection">购物车</a>
-      <a href="#returnsSection" class="nav-link" data-target="returnsSection">回访</a>
-      <a href="#eventsSection" class="nav-link" data-target="eventsSection">验证台</a>
+      <a href="#input" class="nav-link active">需求</a>
+      <a href="#needCard" class="nav-link">需求卡</a>
+      <a href="#plansSection" class="nav-link">方案</a>
+      <a href="#cartSection" class="nav-link">购物车</a>
+      <a href="#returnsSection" class="nav-link">回访</a>
+      <a href="#eventsSection" class="nav-link">验证台</a>
     </div>
-    <div class="nav-badge">v0.2 Demo</div>
+
+    <div class="nav-status">
+      <span class="status-dot"></span>
+      DEMO v0.2
+    </div>
+
   </div>
 </nav>
 
-<!-- 主容器 -->
+
 <main class="main">
 
-  <!-- ===== 首屏输入 ===== -->
+  <!-- ================= HERO ================= -->
   <section id="input" class="hero">
-    <div class="hero-content">
-      <div class="hero-badge">
-        <span class="badge-dot"></span>
-        AI 购物决策引擎 · 模拟演示
-      </div>
-      <h1 class="hero-title">
-        用一句话，<br>
-        <span class="gradient-text">搞定整套装备方案</span>
-      </h1>
-      <p class="hero-sub">自然语言描述你的出行需求，AI 自动解析、匹配商品、生成三套方案，并支持价格回访。</p>
 
-      <div class="input-area">
-        <div class="input-wrapper">
-          <span class="input-icon">✨</span>
-          <textarea id="needInput" class="main-input" rows="3" placeholder="例如：下个月去云南轻旅行7天，预算1500元，需要背包、外套、帽子和便携雨具，要求轻便，运动鞋我已经有了。"></textarea>
-        </div>
-        <div class="input-actions">
-          <div class="chips">
-            <button class="chip" onclick="fillExample(this)">🎒 轻便优先</button>
-            <button class="chip" onclick="fillExample(this)">☀️ 防晒防雨</button>
-            <button class="chip" onclick="fillExample(this)">💰 预算1500</button>
-            <button class="chip" onclick="fillExample(this)">📸 上镜好看</button>
-          </div>
-          <button id="btnParse" class="btn btn-primary btn-lg">
-            <span class="btn-text">AI 解析需求</span>
-            <span class="btn-icon">→</span>
-          </button>
-        </div>
-      </div>
+    <div class="eyebrow">
+      <span class="eyebrow-dot"></span>
+      AI SHOPPING DECISION ENGINE
+    </div>
 
-      <!-- 解析中骨架 -->
-      <div id="parsingSkeleton" class="skeleton hidden">
-        <div class="skeleton-line skeleton-line-1"></div>
-        <div class="skeleton-line skeleton-line-2"></div>
-        <div class="skeleton-line skeleton-line-3"></div>
-        <p class="skeleton-text">AI 正在理解你的需求…</p>
-      </div>
-    </div>
-  </section>
+    <h1>
+      把「我想买什么」
+      <br>
+      变成一套<span>可执行方案</span>
+    </h1>
 
-  <!-- ===== 需求卡 ===== -->
-  <section id="needCard" class="section hidden">
-    <div class="section-header">
-      <h2 class="section-title">
-        <span class="section-icon">📋</span> 需求卡
-      </h2>
-      <button id="btnConfirm" class="btn btn-primary">确认并生成方案</button>
-    </div>
-    <div class="bento-grid bento-3">
-      <div class="bento-card bento-destination">
-        <div class="bento-label">目的地</div>
-        <div class="bento-value" id="ncDest">—</div>
-      </div>
-      <div class="bento-card bento-scene">
-        <div class="bento-label">场景</div>
-        <div class="bento-value" id="ncScene">—</div>
-      </div>
-      <div class="bento-card bento-budget">
-        <div class="bento-label">预算</div>
-        <div class="bento-value" id="ncBudget">—</div>
-      </div>
-      <div class="bento-card bento-categories">
-        <div class="bento-label">需要品类</div>
-        <div class="bento-tags" id="ncCats"></div>
-      </div>
-      <div class="bento-card bento-hard">
-        <div class="bento-label">硬条件</div>
-        <div class="bento-tags" id="ncHard"></div>
-      </div>
-      <div class="bento-card bento-have">
-        <div class="bento-label">已有物品</div>
-        <div class="bento-tags" id="ncHave"></div>
-      </div>
-    </div>
-    <details class="raw-json">
-      <summary>查看原始 JSON</summary>
-      <pre id="needContent"></pre>
-    </details>
-  </section>
+    <p class="hero-desc">
+      用一句话描述你的预算、场景和要求。
+      ChoicePilot 帮你拆解需求、组合商品，并验证整套购买方案。
+    </p>
 
-  <!-- ===== 方案中心 ===== -->
-  <section id="plansSection" class="section hidden">
-    <div class="section-header">
-      <h2 class="section-title">
-        <span class="section-icon">🎯</span> 方案中心
-      </h2>
-      <span class="section-hint">三套方案，一次对比</span>
-    </div>
-    <div id="plansList" class="plans-container"></div>
-  </section>
+    <div class="command-box">
 
-  <!-- ===== 购物车 ===== -->
-  <section id="cartSection" class="section hidden">
-    <div class="section-header">
-      <h2 class="section-title">
-        <span class="section-icon">🛒</span> 购物车
-      </h2>
-      <div class="cart-actions">
-        <button id="btnSaveCart" class="btn btn-ghost">保存草稿</button>
-        <button id="btnSubmit" class="btn btn-primary">模拟提交</button>
-      </div>
-    </div>
-    <div class="cart-layout">
-      <div class="cart-items" id="cartItems"></div>
-      <div class="cart-summary glass-card">
-        <h3 class="summary-title">结算摘要</h3>
-        <div class="summary-row">
-          <span>商品数</span><span id="summaryCount">0</span>
+      <div class="command-icon">✦</div>
+
+      <textarea
+        id="needInput"
+        class="main-input"
+        rows="4"
+        placeholder="例如：下个月去云南轻旅行7天，预算1500元，需要背包、外套、帽子和便携雨具，要求轻便、防晒防雨，运动鞋我已经有了。"
+      ></textarea>
+
+      <div class="command-bottom">
+
+        <div class="quick-actions">
+          <button class="quick-chip">🎒 轻便优先</button>
+          <button class="quick-chip">☀ 防晒防雨</button>
+          <button class="quick-chip">¥1500 预算</button>
+          <button class="quick-chip">📸 上镜好看</button>
         </div>
-        <div class="summary-row">
-          <span>小计</span><span id="summaryTotal">¥0</span>
-        </div>
-        <div class="summary-row">
-          <span>剩余预算</span><span id="summaryRemain">¥0</span>
-        </div>
-        <div class="budget-bar">
-          <div class="budget-fill" id="budgetFill"></div>
-        </div>
-        <button id="btnReturn" class="btn btn-warning btn-block">
-          💰 价格太高？发起回访
+
+        <button
+          id="btnParse"
+          class="btn btn-primary btn-large"
+          onclick="parseNeed();generatePlans();"
+        >
+          开始分析
+          <span>→</span>
         </button>
-        <div id="submitResult"></div>
+
       </div>
     </div>
-  </section>
 
-  <!-- ===== 价格回访 ===== -->
-  <section id="returnsSection" class="section hidden">
-    <div class="section-header">
-      <h2 class="section-title">
-        <span class="section-icon">🔄</span> 价格回访
-      </h2>
+    <div class="hero-note">
+      <span>✓</span> AI 解析
+      <span>·</span>
+      <span>✓</span> 规则推荐
+      <span>·</span>
+      <span>✓</span> 预算校验
     </div>
-    <div id="returnTimeline" class="timeline"></div>
+
   </section>
 
-  <!-- ===== 验证台 ===== -->
+
+  <!-- ================= NEED CARD ================= -->
+  <section id="needCard" class="section">
+
+    <div id="reqPanel" class="panel hidden">
+
+      <div class="section-top">
+
+        <div>
+          <div class="eyebrow small">STEP 01</div>
+          <h2>需求确认</h2>
+          <p>AI 已将自然语言转换为结构化购买条件。</p>
+        </div>
+
+        <button
+          id="btnConfirm"
+          class="btn btn-primary"
+          onclick="generatePlans()"
+        >
+          确认并生成方案 →
+        </button>
+
+      </div>
+
+      <div class="requirement-grid">
+
+        <div class="info-card large">
+          <div class="info-label">预算</div>
+          <div class="big-number">¥1,500</div>
+          <div class="info-muted">本次购买总预算</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-label">目的地</div>
+          <div class="info-value">云南</div>
+          <div class="info-muted">7 天轻旅行</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-label">场景</div>
+          <div class="info-value">旅行</div>
+          <div class="info-muted">轻便出行</div>
+        </div>
+
+        <div class="info-card wide">
+          <div class="info-label">需要购买</div>
+
+          <div class="tag-list">
+            <span>背包</span>
+            <span>外套</span>
+            <span>防晒帽</span>
+            <span>便携雨具</span>
+          </div>
+        </div>
+
+        <div class="info-card wide">
+          <div class="info-label">硬条件</div>
+
+          <div class="tag-list">
+            <span class="green-tag">轻便</span>
+            <span class="green-tag">防晒</span>
+            <span class="green-tag">防雨</span>
+          </div>
+        </div>
+
+        <div class="info-card wide">
+          <div class="info-label">已有物品</div>
+
+          <div class="tag-list">
+            <span class="gray-tag">运动鞋</span>
+            <span class="gray-tag">太阳镜</span>
+          </div>
+        </div>
+
+      </div>
+
+      <details class="raw-json">
+        <summary>查看结构化需求 JSON</summary>
+        <pre id="needContent">
+{
+  "budget": 1500,
+  "scene": "云南轻旅行",
+  "duration": "7天",
+  "categories": ["背包", "外套", "防晒帽", "便携雨具"],
+  "constraints": ["轻便", "防晒", "防雨"]
+}
+        </pre>
+      </details>
+
+    </div>
+
+  </section>
+
+
+  <!-- ================= HOME RESULT ================= -->
+  <section id="homePlans" class="section hidden"></section>
+
+
+  <!-- ================= PLANS ================= -->
+  <section id="plansSection" class="section">
+
+    <div class="section-top">
+
+      <div>
+        <div class="eyebrow small">STEP 02</div>
+        <h2>方案中心</h2>
+        <p>三个不同决策方向，一次完成比较。</p>
+      </div>
+
+      <div class="section-meta">
+        <span class="mini-dot"></span>
+        3 个可解释方案
+      </div>
+
+    </div>
+
+    <div id="planArea" class="plans"></div>
+    <div id="plansList"></div>
+
+  </section>
+
+
+  <!-- ================= CART ================= -->
+  <section id="cartSection" class="section">
+
+    <div class="section-top">
+
+      <div>
+        <div class="eyebrow small">STEP 03</div>
+        <h2>购物车</h2>
+        <p>锁定商品后，系统重新计算整套方案。</p>
+      </div>
+
+      <button
+        id="btnSubmit"
+        class="btn btn-primary"
+        onclick="submitCart()"
+      >
+        模拟提交 →
+      </button>
+
+    </div>
+
+    <div class="cart-layout">
+
+      <div class="cart-main">
+
+        <div class="cart-header">
+          <span>商品</span>
+          <span>操作</span>
+        </div>
+
+        <div id="cartItems"></div>
+
+      </div>
+
+
+      <aside class="summary-card">
+
+        <div class="summary-top">
+          <span>ORDER SUMMARY</span>
+          <span class="summary-live">
+            <i></i> LIVE
+          </span>
+        </div>
+
+        <h3>结算摘要</h3>
+
+        <div class="summary-row">
+          <span>商品数量</span>
+          <strong id="summaryCount">4</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>当前总价</span>
+          <strong id="summaryTotal">¥836</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>剩余预算</span>
+          <strong id="summaryRemain" class="green-text">¥664</strong>
+        </div>
+
+        <div class="budget">
+
+          <div class="budget-top">
+            <span>预算使用率</span>
+            <span>56%</span>
+          </div>
+
+          <div class="budget-track">
+            <div id="budgetFill" class="budget-progress"></div>
+          </div>
+
+        </div>
+
+        <button
+          id="btnReturn"
+          class="return-button"
+          onclick="show('returnsSection')"
+        >
+          <span>¥</span>
+          价格太高？发起回访
+        </button>
+
+        <div id="submitResult"></div>
+
+      </aside>
+
+    </div>
+
+  </section>
+
+
+  <!-- ================= RETURNS ================= -->
+  <section id="returnsSection" class="section">
+
+    <div class="section-top">
+
+      <div>
+        <div class="eyebrow small">STEP 04</div>
+        <h2>P0.5 · 价格回访</h2>
+        <p>用户因价格放弃后，系统尝试寻找更低价替代方案。</p>
+      </div>
+
+      <span class="experimental">EXPERIMENTAL</span>
+
+    </div>
+
+    <div class="return-flow">
+
+      <div class="flow-line"></div>
+
+      <div class="flow-step active">
+        <div class="flow-number">01</div>
+        <div>
+          <strong>用户删除商品</strong>
+          <p>仅允许删除未锁定商品</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">02</div>
+        <div>
+          <strong>选择价格原因</strong>
+          <p>用户明确选择「价格太高」</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">03</div>
+        <div>
+          <strong>寻找替代商品</strong>
+          <p>同品类、更低价格、满足硬条件</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">04</div>
+        <div>
+          <strong>运营审核</strong>
+          <p>审核通过后才进入模拟触达</p>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">05</div>
+        <div>
+          <strong>用户主动确认</strong>
+          <p>用户确认后重新加入购物车</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="returnResult"></div>
+    <div id="returnTimeline"></div>
+
+  </section>
+
+
+  <!-- ================= VERIFY ================= -->
   <section id="eventsSection" class="section">
-    <div class="section-header">
-      <h2 class="section-title">
-        <span class="section-icon">📊</span> 验证台 · 事件日志
-      </h2>
-      <span class="section-hint" id="eventCount">0 条事件</span>
+
+    <div class="section-top">
+
+      <div>
+        <div class="eyebrow small">SYSTEM</div>
+        <h2>验证台</h2>
+        <p>查看当前 Demo 的事件与规则执行情况。</p>
+      </div>
+
+      <span id="eventCount" class="event-count">LIVE EVENTS</span>
+
     </div>
-    <div class="events-container glass-card">
-      <div id="eventLog" class="event-log"></div>
+
+    <div class="console">
+
+      <div class="console-head">
+        <span>choicepilot://events</span>
+        <span>● connected</span>
+      </div>
+
+      <div id="log" class="event-log">
+        <div class="event-line">
+          <span class="event-time">--:--:--</span>
+          <span class="event-type">SYSTEM</span>
+          <span>ChoicePilot Demo initialized.</span>
+        </div>
+      </div>
+
+      <div id="eventLog"></div>
+
     </div>
+
   </section>
 
 </main>
 
+
 <footer class="footer">
-  <p>ChoicePilot Demo · 纯前端模拟 · 数据存于 localStorage · 非真实交易</p>
+  <div class="footer-inner">
+    <strong>ChoicePilot</strong>
+    <span>AI Shopping Decision Engine</span>
+    <span>·</span>
+    <span>Pure Frontend Demo</span>
+    <span>·</span>
+    <span>非真实交易</span>
+  </div>
 </footer>
 
-<script src="products.js"></script>
+
 <script src="app.js"></script>
+
 </body>
 </html>
