@@ -338,3 +338,41 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(renderEvents, 2000);
     renderEvents();
 });
+// 1. 导航栏点击平滑滚动与高亮逻辑
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        // 移除所有高亮
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        // 当前项高亮
+        e.target.classList.add('active');
+        
+        const targetId = e.target.getAttribute('data-target');
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+            // 平滑滚动到对应模块
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // 如果是购物车、回访、验证台等模块，触发对应的渲染函数
+            if (targetId === 'cartSection') renderCart();
+            if (targetId === 'returnTimeline') renderReturns();
+            if (targetId === 'eventLog') renderEvents();
+        }
+    });
+});
+
+// 2. 监听滚动事件，自动高亮当前所在的导航项
+window.addEventListener('scroll', () => {
+    const sections = ['need', 'plans', 'cart', 'return', 'verify'];
+    const scrollPos = window.scrollY + 100; // 偏移量适配固定导航
+    
+    sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollPos && el.offsetTop + el.offsetHeight > scrollPos) {
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            const activeLink = document.querySelector(`.nav-link[data-target="${id}"]`);
+            if (activeLink) activeLink.classList.add('active');
+        }
+    });
+});
