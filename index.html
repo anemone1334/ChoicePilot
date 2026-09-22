@@ -136,69 +136,199 @@
 
       </div>
 
-      <div class="requirement-grid">
+     <div class="requirement-grid">
 
-        <div class="info-card large">
-          <div class="info-label">预算</div>
-          <div class="big-number">¥1,500</div>
-          <div class="info-muted">本次购买总预算</div>
-        </div>
+  <!-- 预算 -->
+  <div class="info-card large editable-card">
+    <div class="info-card-top">
+      <div class="info-label">预算</div>
+      <button
+        class="edit-btn"
+        data-edit="budget"
+        type="button"
+      >
+        编辑
+      </button>
+    </div>
 
-        <div class="info-card">
-          <div class="info-label">目的地</div>
-          <div class="info-value">云南</div>
-          <div class="info-muted">7 天轻旅行</div>
-        </div>
+    <div
+      id="ncBudget"
+      class="big-number"
+    >
+      ¥1,500
+    </div>
 
-        <div class="info-card">
-          <div class="info-label">场景</div>
-          <div class="info-value">旅行</div>
-          <div class="info-muted">轻便出行</div>
-        </div>
+    <div class="info-muted">
+      本次购买总预算
+    </div>
+  </div>
 
-        <div class="info-card wide">
-          <div class="info-label">需要购买</div>
 
-          <div class="tag-list">
-            <span>背包</span>
-            <span>外套</span>
-            <span>防晒帽</span>
-            <span>便携雨具</span>
-          </div>
-        </div>
+  <!-- 目的地 -->
+  <div class="info-card editable-card">
 
-        <div class="info-card wide">
-          <div class="info-label">硬条件</div>
+    <div class="info-card-top">
+      <div class="info-label">目的地</div>
 
-          <div class="tag-list">
-            <span class="green-tag">轻便</span>
-            <span class="green-tag">防晒</span>
-            <span class="green-tag">防雨</span>
-          </div>
-        </div>
+      <button
+        class="edit-btn"
+        data-edit="destination"
+        type="button"
+      >
+        编辑
+      </button>
+    </div>
 
-        <div class="info-card wide">
-          <div class="info-label">已有物品</div>
+    <div
+      id="ncDest"
+      class="info-value"
+    >
+      云南
+    </div>
 
-          <div class="tag-list">
-            <span class="gray-tag">运动鞋</span>
-            <span class="gray-tag">太阳镜</span>
-          </div>
-        </div>
+    <div
+      id="ncDuration"
+      class="info-muted"
+    >
+      7 天轻旅行
+    </div>
 
+  </div>
+
+
+  <!-- 场景 -->
+  <div class="info-card editable-card">
+
+    <div class="info-card-top">
+      <div class="info-label">场景</div>
+
+      <button
+        class="edit-btn"
+        data-edit="scene"
+        type="button"
+      >
+        编辑
+      </button>
+    </div>
+
+    <div
+      id="ncScene"
+      class="info-value"
+    >
+      旅行
+    </div>
+
+    <div class="info-muted">
+      轻便出行
+    </div>
+
+  </div>
+
+
+  <!-- 需要购买 -->
+  <div class="info-card wide editable-card">
+
+    <div class="info-card-top">
+      <div class="info-label">
+        需要购买
       </div>
+
+      <button
+        class="edit-btn"
+        data-edit="categories"
+        type="button"
+      >
+        编辑
+      </button>
+    </div>
+
+    <div
+      id="ncCats"
+      class="tag-list editable-tags"
+    ></div>
+
+  </div>
+
+
+  <!-- 硬条件 -->
+  <div class="info-card wide editable-card">
+
+    <div class="info-card-top">
+      <div class="info-label">
+        硬条件
+      </div>
+
+      <button
+        class="edit-btn"
+        data-edit="hardRules"
+        type="button"
+      >
+        编辑
+      </button>
+    </div>
+
+    <div
+      id="ncHard"
+      class="tag-list editable-tags"
+    ></div>
+
+  </div>
+
+
+  <!-- 已有物品 -->
+  <div class="info-card wide editable-card">
+
+    <div class="info-card-top">
+      <div class="info-label">
+        已有物品
+      </div>
+
+      <button
+        class="edit-btn"
+        data-edit="existingItems"
+        type="button"
+      >
+        编辑
+      </button>
+    </div>
+
+    <div
+      id="ncHave"
+      class="tag-list editable-tags"
+    ></div>
+
+  </div>
+
+</div>
 
       <details class="raw-json">
         <summary>查看结构化需求 JSON</summary>
-        <pre id="needContent">
-{
+      <details class="raw-json">
+  <summary>查看结构化需求 JSON</summary>
+
+  <pre id="needContent">{
   "budget": 1500,
-  "scene": "云南轻旅行",
+  "destination": "云南",
   "duration": "7天",
-  "categories": ["背包", "外套", "防晒帽", "便携雨具"],
-  "constraints": ["轻便", "防晒", "防雨"]
-}
-        </pre>
+  "scene": "旅行",
+  "categories": [
+    "背包",
+    "外套",
+    "防晒帽",
+    "便携雨具"
+  ],
+  "constraints": [
+    "轻便",
+    "防晒",
+    "防雨"
+  ],
+  "existingItems": [
+    "运动鞋",
+    "太阳镜"
+  ]
+}</pre>
+
+</details>
       </details>
 
     </div>
